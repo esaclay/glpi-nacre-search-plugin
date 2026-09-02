@@ -1,0 +1,717 @@
+[
+    {
+        "code": "01.11Z",
+        "label": "Culture de céréales (à l'exception du riz), de légumineuses et de graines oléagineuses",
+        "section": "A",
+        "division": "01",
+        "group": "01.1",
+        "class": "01.11",
+        "keywords": [
+            "céréales",
+            "agriculture",
+            "blé",
+            "orge"
+        ],
+        "search": "01.11z culture de céréales (à l'exception du riz), de légumineuses et de graines oléagineuses a 01 01.1 01.11 céréales agriculture blé orge"
+    },
+    {
+        "code": "01.13Z",
+        "label": "Culture de légumes, de melons, de racines et de tubercules",
+        "section": "A",
+        "division": "01",
+        "group": "01.1",
+        "class": "01.13",
+        "keywords": [
+            "maraîchage",
+            "légumes",
+            "tubercules"
+        ],
+        "search": "01.13z culture de légumes, de melons, de racines et de tubercules a 01 01.1 01.13 maraîchage légumes tubercules"
+    },
+    {
+        "code": "01.21Z",
+        "label": "Culture de la vigne",
+        "section": "A",
+        "division": "01",
+        "group": "01.2",
+        "class": "01.21",
+        "keywords": [
+            "vigne",
+            "viticulture",
+            "raisin"
+        ],
+        "search": "01.21z culture de la vigne a 01 01.2 01.21 vigne viticulture raisin"
+    },
+    {
+        "code": "01.24Z",
+        "label": "Culture de fruits à pépins et à noyau",
+        "section": "A",
+        "division": "01",
+        "group": "01.2",
+        "class": "01.24",
+        "keywords": [
+            "fruits",
+            "pommes",
+            "vergers"
+        ],
+        "search": "01.24z culture de fruits à pépins et à noyau a 01 01.2 01.24 fruits pommes vergers"
+    },
+    {
+        "code": "01.30Z",
+        "label": "Reproduction de plantes",
+        "section": "A",
+        "division": "01",
+        "group": "01.3",
+        "class": "01.30",
+        "keywords": [
+            "pépinière",
+            "horticulture",
+            "plants"
+        ],
+        "search": "01.30z reproduction de plantes a 01 01.3 01.30 pépinière horticulture plants"
+    },
+    {
+        "code": "10.11Z",
+        "label": "Transformation et conservation de la viande de boucherie",
+        "section": "C",
+        "division": "10",
+        "group": "10.1",
+        "class": "10.11",
+        "keywords": [
+            "abattage",
+            "viande",
+            "agroalimentaire"
+        ],
+        "search": "10.11z transformation et conservation de la viande de boucherie c 10 10.1 10.11 abattage viande agroalimentaire"
+    },
+    {
+        "code": "10.32Z",
+        "label": "Préparation de jus de fruits et légumes",
+        "section": "C",
+        "division": "10",
+        "group": "10.3",
+        "class": "10.32",
+        "keywords": [
+            "jus",
+            "boissons",
+            "fruits"
+        ],
+        "search": "10.32z préparation de jus de fruits et légumes c 10 10.3 10.32 jus boissons fruits"
+    },
+    {
+        "code": "10.71C",
+        "label": "Boulangerie et boulangerie-pâtisserie",
+        "section": "C",
+        "division": "10",
+        "group": "10.7",
+        "class": "10.71",
+        "keywords": [
+            "boulangerie",
+            "pain",
+            "pâtisserie"
+        ],
+        "search": "10.71c boulangerie et boulangerie-pâtisserie c 10 10.7 10.71 boulangerie pain pâtisserie"
+    },
+    {
+        "code": "10.85Z",
+        "label": "Fabrication de plats préparés",
+        "section": "C",
+        "division": "10",
+        "group": "10.8",
+        "class": "10.85",
+        "keywords": [
+            "plats cuisinés",
+            "traiteur",
+            "agroalimentaire"
+        ],
+        "search": "10.85z fabrication de plats préparés c 10 10.8 10.85 plats cuisinés traiteur agroalimentaire"
+    },
+    {
+        "code": "13.92Z",
+        "label": "Fabrication d'articles textiles, sauf habillement",
+        "section": "C",
+        "division": "13",
+        "group": "13.9",
+        "class": "13.92",
+        "keywords": [
+            "textile",
+            "linge",
+            "toiles"
+        ],
+        "search": "13.92z fabrication d'articles textiles, sauf habillement c 13 13.9 13.92 textile linge toiles"
+    },
+    {
+        "code": "18.12Z",
+        "label": "Autre imprimerie (labeur)",
+        "section": "C",
+        "division": "18",
+        "group": "18.1",
+        "class": "18.12",
+        "keywords": [
+            "imprimerie",
+            "édition",
+            "supports"
+        ],
+        "search": "18.12z autre imprimerie (labeur) c 18 18.1 18.12 imprimerie édition supports"
+    },
+    {
+        "code": "25.11Z",
+        "label": "Fabrication de structures métalliques et de parties de structures",
+        "section": "C",
+        "division": "25",
+        "group": "25.1",
+        "class": "25.11",
+        "keywords": [
+            "métallurgie",
+            "charpente",
+            "acier"
+        ],
+        "search": "25.11z fabrication de structures métalliques et de parties de structures c 25 25.1 25.11 métallurgie charpente acier"
+    },
+    {
+        "code": "26.11Z",
+        "label": "Fabrication de composants électroniques",
+        "section": "C",
+        "division": "26",
+        "group": "26.1",
+        "class": "26.11",
+        "keywords": [
+            "électronique",
+            "circuits",
+            "composants"
+        ],
+        "search": "26.11z fabrication de composants électroniques c 26 26.1 26.11 électronique circuits composants"
+    },
+    {
+        "code": "26.20Z",
+        "label": "Fabrication d'ordinateurs et d'équipements périphériques",
+        "section": "C",
+        "division": "26",
+        "group": "26.2",
+        "class": "26.20",
+        "keywords": [
+            "ordinateurs",
+            "informatique",
+            "matériel"
+        ],
+        "search": "26.20z fabrication d'ordinateurs et d'équipements périphériques c 26 26.2 26.20 ordinateurs informatique matériel"
+    },
+    {
+        "code": "27.12Z",
+        "label": "Fabrication de matériel de distribution et de commande électrique",
+        "section": "C",
+        "division": "27",
+        "group": "27.1",
+        "class": "27.12",
+        "keywords": [
+            "électricité",
+            "tableaux",
+            "commande"
+        ],
+        "search": "27.12z fabrication de matériel de distribution et de commande électrique c 27 27.1 27.12 électricité tableaux commande"
+    },
+    {
+        "code": "28.25Z",
+        "label": "Fabrication d'équipements aérauliques et frigorifiques industriels",
+        "section": "C",
+        "division": "28",
+        "group": "28.2",
+        "class": "28.25",
+        "keywords": [
+            "froid",
+            "ventilation",
+            "industrie"
+        ],
+        "search": "28.25z fabrication d'équipements aérauliques et frigorifiques industriels c 28 28.2 28.25 froid ventilation industrie"
+    },
+    {
+        "code": "31.01Z",
+        "label": "Fabrication de meubles de bureau et de magasin",
+        "section": "C",
+        "division": "31",
+        "group": "31.0",
+        "class": "31.01",
+        "keywords": [
+            "mobilier",
+            "bureau",
+            "agencement"
+        ],
+        "search": "31.01z fabrication de meubles de bureau et de magasin c 31 31.0 31.01 mobilier bureau agencement"
+    },
+    {
+        "code": "41.20A",
+        "label": "Construction de maisons individuelles",
+        "section": "F",
+        "division": "41",
+        "group": "41.2",
+        "class": "41.20",
+        "keywords": [
+            "bâtiment",
+            "construction",
+            "maison"
+        ],
+        "search": "41.20a construction de maisons individuelles f 41 41.2 41.20 bâtiment construction maison"
+    },
+    {
+        "code": "43.21A",
+        "label": "Travaux d'installation électrique dans tous locaux",
+        "section": "F",
+        "division": "43",
+        "group": "43.2",
+        "class": "43.21",
+        "keywords": [
+            "électricité",
+            "chantier",
+            "câblage"
+        ],
+        "search": "43.21a travaux d'installation électrique dans tous locaux f 43 43.2 43.21 électricité chantier câblage"
+    },
+    {
+        "code": "43.99C",
+        "label": "Travaux de maçonnerie générale et gros œuvre de bâtiment",
+        "section": "F",
+        "division": "43",
+        "group": "43.9",
+        "class": "43.99",
+        "keywords": [
+            "maçonnerie",
+            "gros œuvre",
+            "bâtiment"
+        ],
+        "search": "43.99c travaux de maçonnerie générale et gros œuvre de bâtiment f 43 43.9 43.99 maçonnerie gros œuvre bâtiment"
+    },
+    {
+        "code": "46.19B",
+        "label": "Autres intermédiaires du commerce en produits divers",
+        "section": "G",
+        "division": "46",
+        "group": "46.1",
+        "class": "46.19",
+        "keywords": [
+            "commerce",
+            "intermédiaires",
+            "négoce"
+        ],
+        "search": "46.19b autres intermédiaires du commerce en produits divers g 46 46.1 46.19 commerce intermédiaires négoce"
+    },
+    {
+        "code": "46.69B",
+        "label": "Commerce de gros (commerce interentreprises) de fournitures et équipements industriels divers",
+        "section": "G",
+        "division": "46",
+        "group": "46.6",
+        "class": "46.69",
+        "keywords": [
+            "grossiste",
+            "industrie",
+            "équipements"
+        ],
+        "search": "46.69b commerce de gros (commerce interentreprises) de fournitures et équipements industriels divers g 46 46.6 46.69 grossiste industrie équipements"
+    },
+    {
+        "code": "47.11D",
+        "label": "Supermarchés",
+        "section": "G",
+        "division": "47",
+        "group": "47.1",
+        "class": "47.11",
+        "keywords": [
+            "distribution",
+            "alimentation",
+            "commerce"
+        ],
+        "search": "47.11d supermarchés g 47 47.1 47.11 distribution alimentation commerce"
+    },
+    {
+        "code": "47.91B",
+        "label": "Vente à distance sur catalogue spécialisé",
+        "section": "G",
+        "division": "47",
+        "group": "47.9",
+        "class": "47.91",
+        "keywords": [
+            "e-commerce",
+            "catalogue",
+            "vente en ligne"
+        ],
+        "search": "47.91b vente à distance sur catalogue spécialisé g 47 47.9 47.91 e-commerce catalogue vente en ligne"
+    },
+    {
+        "code": "49.41A",
+        "label": "Transports routiers de fret interurbains",
+        "section": "H",
+        "division": "49",
+        "group": "49.4",
+        "class": "49.41",
+        "keywords": [
+            "transport",
+            "logistique",
+            "camions"
+        ],
+        "search": "49.41a transports routiers de fret interurbains h 49 49.4 49.41 transport logistique camions"
+    },
+    {
+        "code": "52.10B",
+        "label": "Entreposage et stockage non frigorifique",
+        "section": "H",
+        "division": "52",
+        "group": "52.1",
+        "class": "52.10",
+        "keywords": [
+            "stockage",
+            "logistique",
+            "entrepôt"
+        ],
+        "search": "52.10b entreposage et stockage non frigorifique h 52 52.1 52.10 stockage logistique entrepôt"
+    },
+    {
+        "code": "56.10A",
+        "label": "Restauration traditionnelle",
+        "section": "I",
+        "division": "56",
+        "group": "56.1",
+        "class": "56.10",
+        "keywords": [
+            "restaurant",
+            "cuisine",
+            "service"
+        ],
+        "search": "56.10a restauration traditionnelle i 56 56.1 56.10 restaurant cuisine service"
+    },
+    {
+        "code": "58.29C",
+        "label": "Édition de logiciels applicatifs",
+        "section": "J",
+        "division": "58",
+        "group": "58.2",
+        "class": "58.29",
+        "keywords": [
+            "logiciels",
+            "édition",
+            "applications"
+        ],
+        "search": "58.29c édition de logiciels applicatifs j 58 58.2 58.29 logiciels édition applications"
+    },
+    {
+        "code": "61.10Z",
+        "label": "Télécommunications filaires",
+        "section": "J",
+        "division": "61",
+        "group": "61.1",
+        "class": "61.10",
+        "keywords": [
+            "télécom",
+            "réseau",
+            "fibre"
+        ],
+        "search": "61.10z télécommunications filaires j 61 61.1 61.10 télécom réseau fibre"
+    },
+    {
+        "code": "62.01Z",
+        "label": "Programmation informatique",
+        "section": "J",
+        "division": "62",
+        "group": "62.0",
+        "class": "62.01",
+        "keywords": [
+            "développement",
+            "logiciel",
+            "code"
+        ],
+        "search": "62.01z programmation informatique j 62 62.0 62.01 développement logiciel code"
+    },
+    {
+        "code": "62.02A",
+        "label": "Conseil en systèmes et logiciels informatiques",
+        "section": "J",
+        "division": "62",
+        "group": "62.0",
+        "class": "62.02",
+        "keywords": [
+            "conseil",
+            "systèmes",
+            "informatique"
+        ],
+        "search": "62.02a conseil en systèmes et logiciels informatiques j 62 62.0 62.02 conseil systèmes informatique"
+    },
+    {
+        "code": "62.03Z",
+        "label": "Gestion d'installations informatiques",
+        "section": "J",
+        "division": "62",
+        "group": "62.0",
+        "class": "62.03",
+        "keywords": [
+            "infogérance",
+            "exploitation",
+            "systèmes"
+        ],
+        "search": "62.03z gestion d'installations informatiques j 62 62.0 62.03 infogérance exploitation systèmes"
+    },
+    {
+        "code": "62.09Z",
+        "label": "Autres activités informatiques",
+        "section": "J",
+        "division": "62",
+        "group": "62.0",
+        "class": "62.09",
+        "keywords": [
+            "IT",
+            "numérique",
+            "informatique"
+        ],
+        "search": "62.09z autres activités informatiques j 62 62.0 62.09 it numérique informatique"
+    },
+    {
+        "code": "63.11Z",
+        "label": "Traitement de données, hébergement et activités connexes",
+        "section": "J",
+        "division": "63",
+        "group": "63.1",
+        "class": "63.11",
+        "keywords": [
+            "hébergement",
+            "cloud",
+            "données"
+        ],
+        "search": "63.11z traitement de données, hébergement et activités connexes j 63 63.1 63.11 hébergement cloud données"
+    },
+    {
+        "code": "68.20B",
+        "label": "Location de terrains et d'autres biens immobiliers",
+        "section": "L",
+        "division": "68",
+        "group": "68.2",
+        "class": "68.20",
+        "keywords": [
+            "immobilier",
+            "location",
+            "patrimoine"
+        ],
+        "search": "68.20b location de terrains et d'autres biens immobiliers l 68 68.2 68.20 immobilier location patrimoine"
+    },
+    {
+        "code": "69.10Z",
+        "label": "Activités juridiques",
+        "section": "M",
+        "division": "69",
+        "group": "69.1",
+        "class": "69.10",
+        "keywords": [
+            "droit",
+            "avocat",
+            "juridique"
+        ],
+        "search": "69.10z activités juridiques m 69 69.1 69.10 droit avocat juridique"
+    },
+    {
+        "code": "70.22Z",
+        "label": "Conseil pour les affaires et autres conseils de gestion",
+        "section": "M",
+        "division": "70",
+        "group": "70.2",
+        "class": "70.22",
+        "keywords": [
+            "stratégie",
+            "management",
+            "conseil"
+        ],
+        "search": "70.22z conseil pour les affaires et autres conseils de gestion m 70 70.2 70.22 stratégie management conseil"
+    },
+    {
+        "code": "71.12B",
+        "label": "Ingénierie, études techniques",
+        "section": "M",
+        "division": "71",
+        "group": "71.1",
+        "class": "71.12",
+        "keywords": [
+            "ingénierie",
+            "bureau d'études",
+            "technique"
+        ],
+        "search": "71.12b ingénierie, études techniques m 71 71.1 71.12 ingénierie bureau d'études technique"
+    },
+    {
+        "code": "72.19Z",
+        "label": "Recherche-développement en autres sciences physiques et naturelles",
+        "section": "M",
+        "division": "72",
+        "group": "72.1",
+        "class": "72.19",
+        "keywords": [
+            "R&D",
+            "laboratoire",
+            "innovation"
+        ],
+        "search": "72.19z recherche-développement en autres sciences physiques et naturelles m 72 72.1 72.19 r&d laboratoire innovation"
+    },
+    {
+        "code": "73.11Z",
+        "label": "Activités des agences de publicité",
+        "section": "M",
+        "division": "73",
+        "group": "73.1",
+        "class": "73.11",
+        "keywords": [
+            "publicité",
+            "communication",
+            "marketing"
+        ],
+        "search": "73.11z activités des agences de publicité m 73 73.1 73.11 publicité communication marketing"
+    },
+    {
+        "code": "74.10Z",
+        "label": "Activités spécialisées de design",
+        "section": "M",
+        "division": "74",
+        "group": "74.1",
+        "class": "74.10",
+        "keywords": [
+            "design",
+            "création",
+            "graphisme"
+        ],
+        "search": "74.10z activités spécialisées de design m 74 74.1 74.10 design création graphisme"
+    },
+    {
+        "code": "77.11A",
+        "label": "Location de courte durée de voitures et de véhicules automobiles légers",
+        "section": "N",
+        "division": "77",
+        "group": "77.1",
+        "class": "77.11",
+        "keywords": [
+            "location",
+            "véhicules",
+            "automobile"
+        ],
+        "search": "77.11a location de courte durée de voitures et de véhicules automobiles légers n 77 77.1 77.11 location véhicules automobile"
+    },
+    {
+        "code": "78.10Z",
+        "label": "Activités des agences de placement de main-d'œuvre",
+        "section": "N",
+        "division": "78",
+        "group": "78.1",
+        "class": "78.10",
+        "keywords": [
+            "recrutement",
+            "emploi",
+            "placement"
+        ],
+        "search": "78.10z activités des agences de placement de main-d'œuvre n 78 78.1 78.10 recrutement emploi placement"
+    },
+    {
+        "code": "81.10Z",
+        "label": "Activités combinées de soutien lié aux bâtiments",
+        "section": "N",
+        "division": "81",
+        "group": "81.1",
+        "class": "81.10",
+        "keywords": [
+            "facility management",
+            "maintenance",
+            "bâtiments"
+        ],
+        "search": "81.10z activités combinées de soutien lié aux bâtiments n 81 81.1 81.10 facility management maintenance bâtiments"
+    },
+    {
+        "code": "82.11Z",
+        "label": "Services administratifs combinés de bureau",
+        "section": "N",
+        "division": "82",
+        "group": "82.1",
+        "class": "82.11",
+        "keywords": [
+            "back-office",
+            "administratif",
+            "secrétariat"
+        ],
+        "search": "82.11z services administratifs combinés de bureau n 82 82.1 82.11 back-office administratif secrétariat"
+    },
+    {
+        "code": "85.59B",
+        "label": "Autres enseignements",
+        "section": "P",
+        "division": "85",
+        "group": "85.5",
+        "class": "85.59",
+        "keywords": [
+            "formation",
+            "enseignement",
+            "pédagogie"
+        ],
+        "search": "85.59b autres enseignements p 85 85.5 85.59 formation enseignement pédagogie"
+    },
+    {
+        "code": "86.21Z",
+        "label": "Activité des médecins généralistes",
+        "section": "Q",
+        "division": "86",
+        "group": "86.2",
+        "class": "86.21",
+        "keywords": [
+            "santé",
+            "médecin",
+            "consultation"
+        ],
+        "search": "86.21z activité des médecins généralistes q 86 86.2 86.21 santé médecin consultation"
+    },
+    {
+        "code": "88.99B",
+        "label": "Action sociale sans hébergement n.c.a.",
+        "section": "Q",
+        "division": "88",
+        "group": "88.9",
+        "class": "88.99",
+        "keywords": [
+            "social",
+            "accompagnement",
+            "association"
+        ],
+        "search": "88.99b action sociale sans hébergement n.c.a. q 88 88.9 88.99 social accompagnement association"
+    },
+    {
+        "code": "90.03A",
+        "label": "Création artistique relevant des arts plastiques",
+        "section": "R",
+        "division": "90",
+        "group": "90.0",
+        "class": "90.03",
+        "keywords": [
+            "arts plastiques",
+            "création",
+            "culture"
+        ],
+        "search": "90.03a création artistique relevant des arts plastiques r 90 90.0 90.03 arts plastiques création culture"
+    },
+    {
+        "code": "93.29Z",
+        "label": "Autres activités récréatives et de loisirs",
+        "section": "R",
+        "division": "93",
+        "group": "93.2",
+        "class": "93.29",
+        "keywords": [
+            "loisirs",
+            "animation",
+            "événementiel"
+        ],
+        "search": "93.29z autres activités récréatives et de loisirs r 93 93.2 93.29 loisirs animation événementiel"
+    },
+    {
+        "code": "95.11Z",
+        "label": "Réparation d'ordinateurs et d'équipements périphériques",
+        "section": "S",
+        "division": "95",
+        "group": "95.1",
+        "class": "95.11",
+        "keywords": [
+            "maintenance",
+            "dépannage",
+            "informatique"
+        ],
+        "search": "95.11z réparation d'ordinateurs et d'équipements périphériques s 95 95.1 95.11 maintenance dépannage informatique"
+    }
+]
