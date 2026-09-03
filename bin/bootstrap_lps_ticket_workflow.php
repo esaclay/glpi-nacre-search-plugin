@@ -119,10 +119,6 @@ try {
     define('GLPI_ROOT', $glpiRoot);
     require_once $includes;
 
-    if (!defined('GLPI_VERSION') || version_compare(GLPI_VERSION, '11.0.0', '<') || version_compare(GLPI_VERSION, '12.0.0', '>=')) {
-        throw new RuntimeException('Ce script nécessite GLPI 11.');
-    }
-
     foreach ([Entity::class, Group::class, Profile::class, ProfileRight::class, Ticket::class, ITILFollowup::class, \Glpi\Form\Form::class] as $class) {
         if (!class_exists($class)) {
             throw new RuntimeException(sprintf('API GLPI 11 requise indisponible : %s.', $class));
