@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glpi>
+    <name>NACRE Search</name>
+    <key>nacresearch</key>
+    <state>stable</state>
+    <logo>https://raw.githubusercontent.com/esaclay/glpi-nacre-search-plugin/main/public/images/logo.png</logo>
+    <description>
+        <short>Plugin de recherche NACRE pour GLPI</short>
+        <long>Plugin permettant de rechercher et de gérer les données NACRE directement depuis GLPI</long>
+    </description>
+    <homepage>https://github.com/esaclay/glpi-nacre-search-plugin</homepage>
+    <download>https://github.com/esaclay/glpi-nacre-search-plugin/releases</download>
+    <issues>https://github.com/esaclay/glpi-nacre-search-plugin/issues</issues>
+    <readme>https://github.com/esaclay/glpi-nacre-search-plugin/blob/main/README.md</readme>
+    <version>1.0.0</version>
+    <author>Jeremie Saen</author>
+    <author_url>https://github.com/esaclay</author_url>
+    <license>MIT</license>
+    <license_url>https://github.com/esaclay/glpi-nacre-search-plugin/blob/main/LICENSE</license_url>
+    <tags>
+        <tag>nacre</tag>
+        <tag>search</tag>
+        <tag>research</tag>
+    </tags>
+    <requirements>
+        <requirement type="glpi_version" version="11.0.0" operator="ge" />
+        <requirement type="glpi_version" version="11.0.99" operator="le" />
+        <requirement type="php_version" version="8.0.0" operator="ge" />
+        <requirement type="php_extension" name="json" />
+        <requirement type="php_extension" name="curl" />
+    </requirements>
+</glpi>
