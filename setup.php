@@ -56,38 +56,41 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
 function plugin_nacresearch_install(): bool
 {
     try {
-        // Créer les répertoires s'ils n'existent pas
-        $plugin_dir = GLPI_PLUGIN_DIR . '/nacresearch';
-        
-        if (!is_dir($plugin_dir . '/public/data')) {
-            mkdir($plugin_dir . '/public/data', 0755, true);
+        // GLPI already detected this directory before calling the installer.
+        $plugin_dir = __DIR__;
+        $data_dir = $plugin_dir . '/public/data';
+        $config_dir = $plugin_dir . '/config';
+
+        if (!is_dir($data_dir) && !mkdir($data_dir, 0755, true) && !is_dir($data_dir)) {
+            throw new RuntimeException(sprintf('Impossible de créer le répertoire des données : %s', $data_dir));
         }
-        
-        if (!is_dir($plugin_dir . '/config')) {
-            mkdir($plugin_dir . '/config', 0755, true);
+
+        if (!is_dir($config_dir) && !mkdir($config_dir, 0755, true) && !is_dir($config_dir)) {
+            throw new RuntimeException(sprintf('Impossible de créer le répertoire de configuration : %s', $config_dir));
         }
-        
-        // Initialiser les données NACRE si le fichier n'existe pas
+
         $nacre_data_file = $plugin_dir . '/public/data/nacre.json';
         if (!file_exists($nacre_data_file)) {
             $example_file = $plugin_dir . '/resources/nacre.example.json';
             if (file_exists($example_file)) {
-                copy($example_file, $nacre_data_file);
-            } else {
-                // Créer un fichier vide par défaut
-                file_put_contents($nacre_data_file, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                if (!copy($example_file, $nacre_data_file)) {
+                    throw new RuntimeException(sprintf('Impossible d\'initialiser les données NACRE : %s', $nacre_data_file));
+                }
+            } elseif (file_put_contents($nacre_data_file, "[]\n") === false) {
+                throw new RuntimeException(sprintf('Impossible de créer le fichier de données NACRE : %s', $nacre_data_file));
             }
         }
-        
-        // Créer la configuration locale si elle n'existe pas
+
         $local_config = $plugin_dir . '/config/local.php';
         if (!file_exists($local_config)) {
             $config_content = '<?php' . PHP_EOL . 'return [];' . PHP_EOL;
-            file_put_contents($local_config, $config_content);
+            if (file_put_contents($local_config, $config_content) === false) {
+                throw new RuntimeException(sprintf('Impossible de créer la configuration locale : %s', $local_config));
+            }
         }
-        
+
         return true;
-    } catch (Throwable $exception) {
+    } catch (RuntimeException $exception) {
         error_log('Erreur lors de l\'installation du plugin NACRE Search: ' . $exception->getMessage());
         return false;
     }
@@ -98,12 +101,5 @@ function plugin_nacresearch_install(): bool
  */
 function plugin_nacresearch_uninstall(): bool
 {
-    try {
-        // Le plugin ne supprime rien lors de la désinstallation
-        // Les données NACRE restent intactes pour réinstallation ultérieure
-        return true;
-    } catch (Throwable $exception) {
-        error_log('Erreur lors de la désinstallation du plugin NACRE Search: ' . $exception->getMessage());
-        return false;
-    }
+    return true;
 }
