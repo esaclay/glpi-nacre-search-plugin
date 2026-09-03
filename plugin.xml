@@ -12,7 +12,7 @@
     <download>https://github.com/esaclay/glpi-nacre-search-plugin/releases</download>
     <issues>https://github.com/esaclay/glpi-nacre-search-plugin/issues</issues>
     <readme>https://github.com/esaclay/glpi-nacre-search-plugin/blob/main/README.md</readme>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <author>Jeremie Saen</author>
     <author_url>https://github.com/esaclay</author_url>
     <license>MIT</license>

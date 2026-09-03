@@ -3,7 +3,7 @@
 return [
     'plugin' => [
         'name' => 'nacresearch',
-        'version' => '1.0.0',
+        'version' => '1.0.1',
     ],
     'ui' => [
         'selector_hint' => 'nacre',
