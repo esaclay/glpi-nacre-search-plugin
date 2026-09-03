@@ -50,10 +50,7 @@ chmod +x /home/runner/work/glpi-nacre-search-plugin/glpi-nacre-search-plugin/ins
 GLPI_PLUGIN_DIR=/var/www/html/glpi/plugins /home/runner/work/glpi-nacre-search-plugin/glpi-nacre-search-plugin/install.sh
 ```
 
-Le script :
-
-1. copie le plugin dans `GLPI_PLUGIN_DIR/nacresearch`
-2. rend les scripts exécutables
+Le script copie le plugin dans `GLPI_PLUGIN_DIR/nacresearch`.
 
 Les données versionnées dans `public/data/nacre.json` sont conservées. Ensuite, activez le plugin depuis **Configuration > Plugins** dans GLPI.
 
@@ -92,6 +89,35 @@ Exemple de structure attendue :
 ```
 
 Le script normalise et trie les entrées, puis ajoute un champ `search` pour accélérer les filtrages volumineux.
+
+## Initialisation du workflow de tickets LPS
+
+Après avoir déployé le plugin dans GLPI, exécutez le script avec le compte du serveur web :
+
+```bash
+runuser -u www-data -- php /var/www/commandes/plugins/nacresearch/bin/bootstrap_lps_ticket_workflow.php
+```
+
+Si le plugin n’est pas dans le répertoire standard des plugins, précisez GLPI :
+
+```bash
+runuser -u www-data -- php /chemin/vers/nacresearch/bin/bootstrap_lps_ticket_workflow.php \
+  --glpi-root=/var/www/commandes
+```
+
+Le script GLPI 11 est idempotent et utilise les modèles GLPI. Il exige une unique entité exactement nommée **LPS**, puis crée ou met en conformité le groupe technique **Gestionnaires financiers** dans cette entité et les profils centraux **Gestionnaire financier** et **Administratrice financière**. Il ne crée ni comptes, ni règles d’autorisation, ni associations utilisateurs.
+
+Le gestionnaire financier ne peut traiter que les tickets qui lui sont affectés ou affectés à son groupe et ne peut pas affecter d’autres techniciens. L’administratrice peut voir et affecter tous les tickets, et gérer les formulaires natifs. Le plugin Fields ne propose pas de droit d’administration dédié : son éditeur exige le droit global **Configurer**, qui autorise également la gestion des plugins. Afin de préserver l’interdiction de gérer les plugins, le script ne l’accorde pas ; configurez Fields avec un compte distinct autorisé si nécessaire. Aucun droit utilisateurs, groupes, profils ou plugins n’est attribué.
+
+### Après la première connexion CAS
+
+Pour chaque personne, après sa première connexion CAS :
+
+1. dans **Administration > Utilisateurs**, ajoutez-la manuellement au groupe **Gestionnaires financiers** ;
+2. dans l’onglet **Autorisations**, associez manuellement le profil **Gestionnaire financier** ou **Administratrice financière** à l’entité **LPS**, sans récursivité ;
+3. pour les demandeurs, conservez le profil GLPI existant **Self-Service**.
+
+Les changements d’appartenance et de profil restent volontaires et manuels afin de ne pas interférer avec CAS.
 
 ## Utilisation dans GLPI
 
