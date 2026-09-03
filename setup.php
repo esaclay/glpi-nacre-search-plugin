@@ -18,8 +18,8 @@ function plugin_init_nacresearch(): void
 {
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'js/nacre-search.js';
-    $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'css/nacre-search.css';
+    $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
+    $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
 }
 
