@@ -4,7 +4,7 @@ Plugin GLPI 11 pour intégrer une recherche de codes NACRE directement dans les 
 
 ## Fonctionnalités
 
-- injection automatique d’un bouton de recherche près des champs dont le nom, l’identifiant ou le placeholder contient `nacre`
+- injection automatique d’un bouton de recherche près des champs dont le nom, l’identifiant, le placeholder ou le libellé contient `nacre`
 - ouverture d’une modale de recherche avec filtrage temps réel sur les codes, libellés et mots-clés
 - injection du code sélectionné dans le champ cible avec déclenchement des événements `input` et `change`
 - chargement des données depuis un JSON statique optimisé avec champ `search` pré-calculé
@@ -98,7 +98,7 @@ Le script normalise et trie les entrées, puis ajoute un champ `search` pour acc
 ## Utilisation dans GLPI
 
 1. ouvrez un formulaire GLPI 11 contenant un champ texte lié au code NACRE
-2. assurez-vous que le champ cible contient `nacre` dans son `name`, son `id` ou son `placeholder`
+2. assurez-vous que le champ cible contient `nacre` dans son nom technique, son identifiant, son placeholder ou son libellé
 3. cliquez sur le bouton **Chercher un code NACRE** injecté par le plugin
 4. recherchez un code ou un mot-clé
 5. cliquez sur un résultat pour injecter automatiquement le code dans le champ
@@ -117,9 +117,9 @@ Après installation, `config/local.php` peut surcharger ces valeurs sans modifie
 
 ### Le bouton n’apparaît pas
 
-- vérifiez que le champ du formulaire contient bien `nacre` dans son `name`, `id` ou `placeholder`
+- vérifiez que le champ du formulaire contient bien `nacre` dans son nom technique, son identifiant, son placeholder ou son libellé
 - confirmez que le plugin est activé dans GLPI
-- ouvrez les outils de développement du navigateur pour vérifier le chargement de `js/nacre-search.js`
+- ouvrez les outils de développement du navigateur pour vérifier le chargement de `public/js/nacre-search.js`
 
 ### La modale s’ouvre mais aucun code n’est trouvé
 

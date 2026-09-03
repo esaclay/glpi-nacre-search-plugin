@@ -64,7 +64,10 @@
     }
 
     function fieldMatches(field) {
-        var candidates = [field.name, field.id, field.placeholder, field.getAttribute('aria-label')];
+        var labels = Array.prototype.map.call(field.labels || [], function (label) {
+            return label.textContent;
+        });
+        var candidates = [field.name, field.id, field.placeholder, field.getAttribute('aria-label')].concat(labels);
         return candidates.some(function (value) {
             return normalize(value).indexOf('nacre') !== -1;
         });
