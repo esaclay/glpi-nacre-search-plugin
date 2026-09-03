@@ -234,7 +234,11 @@
     }
 
     function injectButton(field) {
-        if (field.dataset.nacresearchEnhanced === '1' || !fieldMatches(field)) {
+        if (
+            field.type === 'hidden'
+            || field.dataset.nacresearchEnhanced === '1'
+            || !fieldMatches(field)
+        ) {
             return;
         }
 
