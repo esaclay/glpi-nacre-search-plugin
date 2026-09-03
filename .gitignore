@@ -1,1 +1,3 @@
 /config/local.php
+/config/nacre-backups/*
+!/config/nacre-backups/.htaccess

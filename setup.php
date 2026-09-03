@@ -7,10 +7,13 @@ if (!defined('GLPI_ROOT')) {
 }
 
 use Glpi\Plugin\Hooks;
+use GlpiPlugin\Nacresearch\NacreData;
+use GlpiPlugin\Nacresearch\Profile as NacresearchProfile;
 
 require_once __DIR__ . '/hook.php';
+require_once __DIR__ . '/inc/Profile.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.0.2');
+define('PLUGIN_NACRESEARCH_VERSION', '1.1.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
@@ -21,6 +24,11 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
+    $PLUGIN_HOOKS['config_page']['nacresearch'] = 'front/config.php';
+    Plugin::registerClass(NacresearchProfile::class, ['addtabon' => ['Profile']]);
+    if (Session::haveRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE)) {
+        $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
+    }
 }
 
 function plugin_version_nacresearch(): array
@@ -56,10 +64,13 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
 function plugin_nacresearch_install(): bool
 {
     try {
+        ProfileRight::addProfileRights([NacreData::RIGHT_DATA_MANAGEMENT]);
+
         // GLPI already detected this directory before calling the installer.
         $plugin_dir = __DIR__;
         $data_dir = $plugin_dir . '/public/data';
         $config_dir = $plugin_dir . '/config';
+        $backup_dir = $plugin_dir . '/config/nacre-backups';
 
         if (!is_dir($data_dir) && !mkdir($data_dir, 0755, true) && !is_dir($data_dir)) {
             throw new RuntimeException(sprintf('Impossible de créer le répertoire des données : %s', $data_dir));
@@ -67,6 +78,13 @@ function plugin_nacresearch_install(): bool
 
         if (!is_dir($config_dir) && !mkdir($config_dir, 0755, true) && !is_dir($config_dir)) {
             throw new RuntimeException(sprintf('Impossible de créer le répertoire de configuration : %s', $config_dir));
+        }
+        if (!is_dir($backup_dir) && !mkdir($backup_dir, 0750, true) && !is_dir($backup_dir)) {
+            throw new RuntimeException(sprintf('Impossible de créer le répertoire des sauvegardes : %s', $backup_dir));
+        }
+        $backupAccessFile = $backup_dir . '/.htaccess';
+        if (!file_exists($backupAccessFile) && file_put_contents($backupAccessFile, "Require all denied\n") === false) {
+            throw new RuntimeException(sprintf('Impossible de sécuriser le répertoire des sauvegardes : %s', $backup_dir));
         }
 
         $nacre_data_file = $plugin_dir . '/public/data/nacre.json';

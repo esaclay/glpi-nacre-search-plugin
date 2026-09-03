@@ -7,7 +7,6 @@ const LPS_ENTITY_NAME = 'LPS';
 const FINANCE_GROUP_NAME = 'Gestionnaires financiers';
 const FINANCE_MANAGER_PROFILE_NAME = 'Gestionnaire financier';
 const FINANCE_ADMIN_PROFILE_NAME = 'Administratrice financière';
-
 /**
  * @param array<string, mixed> $criteria
  */
@@ -118,6 +117,7 @@ try {
     require_once $autoload;
     $kernel = new \Glpi\Kernel\Kernel();
     $kernel->boot();
+    require_once $pluginRoot . '/inc/NacreData.php';
 
     foreach ([Entity::class, Group::class, Profile::class, ProfileRight::class, Ticket::class, ITILFollowup::class, \Glpi\Form\Form::class] as $class) {
         if (!class_exists($class)) {
@@ -153,6 +153,7 @@ try {
             | ITILFollowup::UPDATEMY | ITILFollowup::UPDATEALL | ITILFollowup::ADD_AS_TECHNICIAN
             | ITILFollowup::ADD_AS_GROUP | ITILFollowup::ADDALLITEM,
         \Glpi\Form\Form::$rightname => CREATE | READ | UPDATE | PURGE,
+        \GlpiPlugin\Nacresearch\NacreData::RIGHT_DATA_MANAGEMENT => UPDATE,
     ];
     foreach ([FINANCE_MANAGER_PROFILE_NAME, FINANCE_ADMIN_PROFILE_NAME] as $profileName) {
         $profile = findOne(Profile::class, ['name' => $profileName], sprintf('le profil « %s »', $profileName));
