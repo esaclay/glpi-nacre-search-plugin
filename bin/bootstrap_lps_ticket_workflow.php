@@ -107,17 +107,17 @@ try {
     $glpiRoot = isset($options['glpi-root'])
         ? rtrim((string) $options['glpi-root'], DIRECTORY_SEPARATOR)
         : dirname($pluginRoot, 2);
-    $includes = $glpiRoot . DIRECTORY_SEPARATOR . 'inc' . DIRECTORY_SEPARATOR . 'includes.php';
-
-    if (!is_file($includes)) {
+    $autoload = $glpiRoot . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+    if (!is_file($autoload)) {
         throw new RuntimeException(sprintf(
-            'GLPI introuvable dans « %s ». Utilisez --glpi-root=/chemin/vers/glpi.',
+            'Autoloader GLPI introuvable dans « %s ». Utilisez --glpi-root=/chemin/vers/glpi.',
             $glpiRoot
         ));
     }
 
-    define('GLPI_ROOT', $glpiRoot);
-    require_once $includes;
+    require_once $autoload;
+    $kernel = new \Glpi\Kernel\Kernel();
+    $kernel->boot();
 
     foreach ([Entity::class, Group::class, Profile::class, ProfileRight::class, Ticket::class, ITILFollowup::class, \Glpi\Form\Form::class] as $class) {
         if (!class_exists($class)) {
