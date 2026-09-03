@@ -49,3 +49,61 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
 {
     return plugin_nacresearch_configuration_ready($verbose);
 }
+
+/**
+ * Installation du plugin NACRE Search
+ */
+function plugin_nacresearch_install(): bool
+{
+    try {
+        // Créer les répertoires s'ils n'existent pas
+        $plugin_dir = GLPI_PLUGIN_DIR . '/nacresearch';
+        
+        if (!is_dir($plugin_dir . '/public/data')) {
+            mkdir($plugin_dir . '/public/data', 0755, true);
+        }
+        
+        if (!is_dir($plugin_dir . '/config')) {
+            mkdir($plugin_dir . '/config', 0755, true);
+        }
+        
+        // Initialiser les données NACRE si le fichier n'existe pas
+        $nacre_data_file = $plugin_dir . '/public/data/nacre.json';
+        if (!file_exists($nacre_data_file)) {
+            $example_file = $plugin_dir . '/resources/nacre.example.json';
+            if (file_exists($example_file)) {
+                copy($example_file, $nacre_data_file);
+            } else {
+                // Créer un fichier vide par défaut
+                file_put_contents($nacre_data_file, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+        }
+        
+        // Créer la configuration locale si elle n'existe pas
+        $local_config = $plugin_dir . '/config/local.php';
+        if (!file_exists($local_config)) {
+            $config_content = '<?php' . PHP_EOL . 'return [];' . PHP_EOL;
+            file_put_contents($local_config, $config_content);
+        }
+        
+        return true;
+    } catch (Throwable $exception) {
+        error_log('Erreur lors de l\'installation du plugin NACRE Search: ' . $exception->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Désinstallation du plugin NACRE Search
+ */
+function plugin_nacresearch_uninstall(): bool
+{
+    try {
+        // Le plugin ne supprime rien lors de la désinstallation
+        // Les données NACRE restent intactes pour réinstallation ultérieure
+        return true;
+    } catch (Throwable $exception) {
+        error_log('Erreur lors de la désinstallation du plugin NACRE Search: ' . $exception->getMessage());
+        return false;
+    }
+}
