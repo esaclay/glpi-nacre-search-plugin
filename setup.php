@@ -10,7 +10,7 @@ use Glpi\Plugin\Hooks;
 
 require_once __DIR__ . '/hook.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.0.1');
+define('PLUGIN_NACRESEARCH_VERSION', '1.0.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
