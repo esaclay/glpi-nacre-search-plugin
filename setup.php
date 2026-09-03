@@ -28,7 +28,7 @@ function plugin_version_nacresearch(): array
     return [
         'name'         => 'NACRE Search',
         'version'      => PLUGIN_NACRESEARCH_VERSION,
-        'author'       => 'Université Paris-Saclay',
+        'author'       => 'Jeremie Saen',
         'license'      => 'MIT',
         'homepage'     => 'https://github.com/esaclay/glpi-nacre-search-plugin',
         'requirements' => [
