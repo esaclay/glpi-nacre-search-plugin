@@ -44,7 +44,7 @@ function plugin_nacresearch_header_tags(): array
             'tag'        => 'meta',
             'properties' => [
                 'name'    => 'nacresearch:data-url',
-                'content' => '/plugins/nacresearch/public/data/nacre.json',
+                'content' => '/plugins/nacresearch/public/data/nacre.json?v=' . PLUGIN_NACRESEARCH_VERSION,
             ],
         ],
         [
