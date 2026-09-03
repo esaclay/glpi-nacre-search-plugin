@@ -52,12 +52,10 @@ GLPI_PLUGIN_DIR=/var/www/html/glpi/plugins /home/runner/work/glpi-nacre-search-p
 
 Le script :
 
-1. génère la configuration locale `config/local.php`
-2. initialise `public/data/nacre.json` à partir de `resources/nacre.example.json`
-3. copie le plugin dans `GLPI_PLUGIN_DIR/nacresearch`
-4. rend les scripts exécutables
+1. copie le plugin dans `GLPI_PLUGIN_DIR/nacresearch`
+2. rend les scripts exécutables
 
-Ensuite, activez le plugin depuis **Configuration > Plugins** dans GLPI.
+Les données versionnées dans `public/data/nacre.json` sont conservées. Ensuite, activez le plugin depuis **Configuration > Plugins** dans GLPI.
 
 ## Initialisation / mise à jour des données NACRE
 

@@ -11,8 +11,6 @@ if ! command -v php >/dev/null 2>&1; then
   exit 1
 fi
 
-php "${REPO_ROOT}/bin/configure.php"
-
 mkdir -p "${TARGET_DIR}"
 if command -v rsync >/dev/null 2>&1; then
   rsync -a     --exclude '.git'     --exclude '.github'     --exclude 'node_modules'     --exclude 'vendor'     --delete     "${REPO_ROOT}/" "${TARGET_DIR}/"
