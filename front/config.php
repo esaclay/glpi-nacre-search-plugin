@@ -32,6 +32,11 @@ $token = Session::getNewCSRFToken();
       <input type="file" name="workbook" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
       <button class="btn btn-primary" type="submit">Importer le classeur</button>
    </form>
+   <form class="mt-2" method="post" action="nacredata.form.php">
+      <input type="hidden" name="_glpi_csrf_token" value="<?= $escape($token) ?>">
+      <input type="hidden" name="action" value="backup">
+      <button class="btn btn-outline-secondary" type="submit">Sauvegarder les données actuelles</button>
+   </form>
 
    <h2 class="mt-4">Sauvegardes disponibles</h2>
    <?php if ($backups === []) : ?>

@@ -500,6 +500,17 @@ final class NacreData
         self::replaceFileAtomically(self::normalizeRecords($records), self::getPublicDataPath(), true);
     }
 
+    public static function backupCurrentData(): void
+    {
+        $path = self::getPublicDataPath();
+        if (!is_file($path) || !is_readable($path)) {
+            throw new RuntimeException('Les données NACRES actuelles sont introuvables ou illisibles.');
+        }
+
+        self::archiveCurrentData($path);
+        self::pruneBackups();
+    }
+
     public static function restoreBackup(string $backupName): void
     {
         if (!preg_match('/^nacre-\d{8}_\d{6}-[a-f0-9]{16}\.json$/', $backupName)) {

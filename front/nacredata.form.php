@@ -18,6 +18,9 @@ try {
         $records = NacreData::importUploadedWorkbook($_FILES['workbook'] ?? null);
         NacreData::replaceDataWithBackup($records);
         Session::addMessageAfterRedirect(sprintf('%d code(s) NACRES ont été importés.', count($records)), false, INFO);
+    } elseif ($action === 'backup') {
+        NacreData::backupCurrentData();
+        Session::addMessageAfterRedirect('Les données NACRES actuelles ont été sauvegardées.', false, INFO);
     } elseif ($action === 'restore') {
         NacreData::restoreBackup((string) ($_POST['backup'] ?? ''));
         Session::addMessageAfterRedirect('La sauvegarde NACRES a été restaurée.', false, INFO);
