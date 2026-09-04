@@ -35,6 +35,12 @@ function plugin_nacresearch_configuration_ready(bool $verbose = false): bool
     return true;
 }
 
+function plugin_nacresearch_can_manage_data(): bool
+{
+    return Session::haveRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE)
+        || Session::haveRight('config', UPDATE);
+}
+
 function plugin_nacresearch_header_tags(): array
 {
     $config = NacreData::loadConfig();

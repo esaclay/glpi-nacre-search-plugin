@@ -31,7 +31,8 @@ final class Profile extends \Profile
 
     private function showNacresRights(int $profileId): void
     {
-        if (!$this->can($profileId, READ)) {
+        $profile = new \Profile();
+        if (!$profile->getFromDB($profileId) || !$profile->can($profileId, READ)) {
             return;
         }
 

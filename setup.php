@@ -26,7 +26,7 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
     $PLUGIN_HOOKS['config_page']['nacresearch'] = 'front/config.php';
     Plugin::registerClass(NacresearchProfile::class, ['addtabon' => ['Profile']]);
-    if (Session::haveRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE)) {
+    if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
     }
 }

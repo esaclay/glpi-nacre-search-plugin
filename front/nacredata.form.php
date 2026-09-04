@@ -7,7 +7,9 @@ require_once dirname(__DIR__) . '/inc/NacreData.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
 
-Session::checkRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE);
+if (!plugin_nacresearch_can_manage_data()) {
+    Session::checkRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE);
+}
 Session::checkCSRF($_POST);
 
 try {
