@@ -64,7 +64,14 @@
     }
 
     function fieldMatches(field) {
-        var candidates = [field.name, field.id, field.placeholder, field.getAttribute('aria-label')];
+        var labels = Array.prototype.map.call(field.labels || [], function (label) {
+            return label.textContent;
+        });
+        var question = field.closest('[data-glpi-form-renderer-question]');
+        if (question) {
+            labels.push(question.getAttribute('aria-label'));
+        }
+        var candidates = [field.name, field.id, field.placeholder, field.getAttribute('aria-label')].concat(labels);
         return candidates.some(function (value) {
             return normalize(value).indexOf('nacre') !== -1;
         });
@@ -227,7 +234,11 @@
     }
 
     function injectButton(field) {
-        if (field.dataset.nacresearchEnhanced === '1' || !fieldMatches(field)) {
+        if (
+            field.type === 'hidden'
+            || field.dataset.nacresearchEnhanced === '1'
+            || !fieldMatches(field)
+        ) {
             return;
         }
 
