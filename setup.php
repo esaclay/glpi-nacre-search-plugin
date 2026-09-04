@@ -58,13 +58,27 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
     return plugin_nacresearch_configuration_ready($verbose);
 }
 
+function plugin_nacresearch_ensure_data_management_right(): void
+{
+    $profiles = new \Profile();
+    foreach (array_keys($profiles->find()) as $profileId) {
+        $profileId = (int) $profileId;
+        $rights = \ProfileRight::getProfileRights($profileId);
+        if (!array_key_exists(NacreData::RIGHT_DATA_MANAGEMENT, $rights)) {
+            \ProfileRight::updateProfileRights($profileId, [
+                NacreData::RIGHT_DATA_MANAGEMENT => 0,
+            ]);
+        }
+    }
+}
+
 /**
  * Installation du plugin NACRE Search
  */
 function plugin_nacresearch_install(): bool
 {
     try {
-        ProfileRight::addProfileRights([NacreData::RIGHT_DATA_MANAGEMENT]);
+        plugin_nacresearch_ensure_data_management_right();
 
         // GLPI already detected this directory before calling the installer.
         $plugin_dir = __DIR__;
