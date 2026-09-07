@@ -33,6 +33,10 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
+
+    if (plugin_nacresearch_can_manage_data()) {
+        $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';
+    }
 }
 
 function plugin_version_nacresearch(): array
