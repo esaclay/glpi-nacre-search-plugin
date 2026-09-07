@@ -5,6 +5,33 @@ declare(strict_types=1);
 require_once __DIR__ . '/inc/NacreData.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
+use GlpiPlugin\Nacresearch\Profile;
+use Session;
+use Throwable;
+
+/**
+ * Installation du plugin nacresearch
+ */
+function plugin_nacresearch_install(): bool
+{
+    return true;
+}
+
+/**
+ * Désinstallation du plugin nacresearch
+ */
+function plugin_nacresearch_uninstall(): bool
+{
+    global $DB;
+
+    // Suppression des droits du plugin dans la table native GLPI
+    $DB->delete(
+        'glpi_profilerights',
+        ['name' => Profile::RIGHT_NACRE]
+    );
+
+    return true;
+}
 
 function plugin_nacresearch_runtime_ready(): bool
 {
@@ -37,7 +64,13 @@ function plugin_nacresearch_configuration_ready(bool $verbose = false): bool
 
 function plugin_nacresearch_can_manage_data(): bool
 {
-    return Session::haveRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE)
+    if (!Session::getLoginUserID()) {
+        return false;
+    }
+
+    // Alignement sur le droit natif Profile::RIGHT_NACRE (Mettre à jour ou Créer)
+    return Session::haveRight(Profile::RIGHT_NACRE, UPDATE)
+        || Session::haveRight(Profile::RIGHT_NACRE, CREATE)
         || Session::haveRight('config', UPDATE);
 }
 

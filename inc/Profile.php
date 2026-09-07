@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace GlpiPlugin\Nacresearch;
 
+use CommonDBTM;
 use CommonGLPI;
 use Html;
+use Profile as GlpiProfile;
 use Session;
 
-final class Profile extends \Profile
+class Profile extends CommonDBTM
 {
+    // Clé du droit enregistrée dans la table glpi_profilerights de GLPI
+    public const RIGHT_NACRE = 'plugin_nacresearch_data';
+
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
-        if ($item instanceof \Profile && $item->getID() > 0) {
+        if ($item instanceof GlpiProfile && $item->getID() > 0) {
             return self::createTabEntry('NACRES');
         }
 
@@ -21,44 +26,62 @@ final class Profile extends \Profile
 
     public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
     {
-        if (!$item instanceof \Profile) {
+        if (!$item instanceof GlpiProfile) {
             return false;
         }
 
-        (new self())->showNacresRights($item->getID());
+        $prof = new self();
+        $prof->showNacresRights($item);
         return true;
     }
 
-    private function showNacresRights(int $profileId): void
+    private function showNacresRights(GlpiProfile $profile): void
     {
-        $profile = new \Profile();
-        if (!$profile->getFromDB($profileId) || !$profile->can($profileId, READ)) {
-            return;
-        }
+        $canEdit = $profile->canUpdate();
 
-        $canEdit = Session::haveRight(self::$rightname, UPDATE);
         if ($canEdit) {
-            echo '<form method="post" action="' . htmlspecialchars(self::getFormURL()) . '">';
+            // Formulaire ciblant le contrôleur natif des Profils GLPI
+            echo '<form method="post" action="' . htmlspecialchars(GlpiProfile::getFormURL()) . '">';
+            echo Html::hidden('id', ['value' => $profile->getID()]);
+            echo Html::hidden('_glpi_csrf_token', ['value' => Session::getNewCSRFToken()]);
         }
 
-        $this->displayRightsChoiceMatrix(
+        $profile->displayRightsChoiceMatrix(
             [[
                 'itemtype' => self::class,
-                'label' => 'Gestion des données NACRES',
-                'field' => NacreData::RIGHT_DATA_MANAGEMENT,
+                'label'    => 'Gestion des données NACRES',
+                'field'    => self::RIGHT_NACRE,
             ]],
             [
                 'canedit' => $canEdit,
-                'title' => 'NACRES',
+                'title'   => 'NACRES',
             ]
         );
 
         if ($canEdit) {
-            echo '<div class="text-center">';
-            echo Html::hidden('id', ['value' => $profileId]);
-            echo Html::submit(_sx('button', 'Save'), ['name' => 'update']);
+            echo '<div class="text-center mt-3 mb-3">';
+            // name='update' déclenche la mise à jour native dans le profil GLPI
+            echo Html::submit(_sx('button', 'Save'), ['name' => 'update', 'class' => 'btn btn-primary']);
             echo '</div>';
             Html::closeForm();
         }
+    }
+
+    /**
+     * Déclaration des droits auprès du noyau GLPI
+     */
+    public static function getAllRights(): array
+    {
+        return [
+            [
+                'itemtype' => self::class,
+                'label'    => 'Gestion des données NACRES',
+                'field'    => self::RIGHT_NACRE,
+                'rights'   => [
+                    READ   => __('Read'),
+                    UPDATE => __('Update'),
+                ],
+            ],
+        ];
     }
 }

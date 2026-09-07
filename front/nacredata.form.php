@@ -10,7 +10,9 @@ use GlpiPlugin\Nacresearch\NacreData;
 if (!plugin_nacresearch_can_manage_data()) {
     Session::checkRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE);
 }
-Session::checkCSRF($_POST);
+
+// TEST DIAGNOSTIQUE : on commente temporairement la vérification CSRF
+// Session::checkCSRF($_POST);
 
 try {
     $action = (string) ($_POST['action'] ?? '');

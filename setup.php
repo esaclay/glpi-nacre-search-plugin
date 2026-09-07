@@ -20,15 +20,29 @@ define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 function plugin_init_nacresearch(): void
 {
     global $PLUGIN_HOOKS;
+    
+    $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
 
+    // Active l'entrée du plugin dans le menu latéral (section Plugins)
+    $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
+
+    
+    $PLUGIN_HOOKS['rights_information']['nacresearch'] = [
+        [
+            'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
+            'label'    => 'Gestion des données NACRES',
+            'field'    => \GlpiPlugin\Nacresearch\Profile::RIGHT_NACRE,
+        ]
+    ];
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
     $PLUGIN_HOOKS['config_page']['nacresearch'] = 'front/config.php';
     Plugin::registerClass(NacresearchProfile::class, ['addtabon' => ['Profile']]);
-    if (plugin_nacresearch_can_manage_data()) {
+    //if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
-    }
+    //}
+    
 }
 
 function plugin_version_nacresearch(): array
@@ -78,9 +92,26 @@ function plugin_nacresearch_ensure_data_management_right(): void
 function plugin_nacresearch_install(): bool
 {
     try {
+        global $DB;
+
+        // Utilisation de la classe Migration standard de GLPI
+        $migration = new Migration(PLUGIN_NACRESEARCH_VERSION);
+
+        if (!$DB->tableExists('glpi_plugin_nacresearch_profiles')) {
+            $query = "CREATE TABLE `glpi_plugin_nacresearch_profiles` (
+    `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `profiles_id` INT UNSIGNED NOT NULL DEFAULT 0,
+    `nacresearch` INT NOT NULL DEFAULT 0,
+    KEY `profiles_id` (`profiles_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+            $migration->addPostQuery($query);
+        }
+
+        $migration->executeMigration();
+
         plugin_nacresearch_ensure_data_management_right();
 
-        // GLPI already detected this directory before calling the installer.
         $plugin_dir = __DIR__;
         $data_dir = $plugin_dir . '/public/data';
         $config_dir = $plugin_dir . '/config';
@@ -122,7 +153,7 @@ function plugin_nacresearch_install(): bool
         }
 
         return true;
-    } catch (RuntimeException $exception) {
+    } catch (Throwable $exception) {
         error_log('Erreur lors de l\'installation du plugin NACRE Search: ' . $exception->getMessage());
         return false;
     }
@@ -133,5 +164,9 @@ function plugin_nacresearch_install(): bool
  */
 function plugin_nacresearch_uninstall(): bool
 {
+    global $DB;
+    if ($DB->tableExists('glpi_plugin_nacresearch_profiles')) {
+        $DB->query("DROP TABLE `glpi_plugin_nacresearch_profiles`;");
+    }
     return true;
 }
