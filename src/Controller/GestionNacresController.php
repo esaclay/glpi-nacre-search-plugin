@@ -2,40 +2,53 @@
 
 declare(strict_types=1);
 
-include '../../inc/includes.php';
-require_once __DIR__ . '/inc/NacreData.php';
+namespace GlpiPlugin\Nacresearch\Controller;
 
+use Glpi\Controller\AbstractController;
 use GlpiPlugin\Nacresearch\NacreData;
+use Html;
+use Plugin;
+use Profile;
+use Session;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Throwable;
+use User;
 
-// Autoriser UNIQUEMENT: Super Admin OU profil "Administratrice financière"
-$user = new User();
-$user->getFromDB(Session::getLoginUserID());
-if ($user->getID() > 0) {
-    $profile = new Profile();
-    $profile->getFromDB($user->fields['profiles_id']);
-    $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
-        || Session::haveRight('config', UPDATE);
-    if (!$isAuthorized) {
-        Html::displayNotFoundError();
-        exit;
-    }
-}
+final class GestionNacresController extends AbstractController
+{
+    #[Route('/gestion-nacres', name: 'nacresearch_gestion_nacres', methods: ['GET', 'POST'])]
+    public function __invoke(): Response
+    {
+        // Vérifier droits: Super Admin OU profil "Administratrice financière"
+        $user = new User();
+        $user->getFromDB(Session::getLoginUserID());
+        if ($user->getID() > 0) {
+            $profile = new Profile();
+            $profile->getFromDB($user->fields['profiles_id']);
+            $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
+                || Session::haveRight('config', UPDATE);
+            if (!$isAuthorized) {
+                Html::displayNotFoundError();
+                exit;
+            }
+        }
 
-Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'config', 'plugins');
+        Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'config', 'plugins');
 
-try {
-    $backups = NacreData::listBackups();
-} catch (Throwable $exception) {
-    $backups = [];
-    Session::addMessageAfterRedirect($exception->getMessage(), false, ERROR);
-}
+        try {
+            $backups = NacreData::listBackups();
+        } catch (Throwable $exception) {
+            $backups = [];
+            Session::addMessageAfterRedirect($exception->getMessage(), false, ERROR);
+        }
 
-$escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-$formAction = Plugin::getWebDir('nacresearch') . '/front/nacredata.form.php';
+        $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $formAction = Plugin::getWebDir('nacresearch') . '/front/nacredata.form.php';
 
-// Génération unique d'un jeton CSRF valide pour toute la page
-$csrfToken = Session::getNewCSRFToken();
-?>
+        // Génération unique d'un jeton CSRF valide pour toute la page
+        $csrfToken = Session::getNewCSRFToken();
+        ?>
 <div class="center">
     <h2>Importer les données NACRES</h2>
     <p>Le classeur doit être un fichier Excel <code>.xlsx</code> avec une unique feuille nommée « N ».</p>
@@ -83,4 +96,7 @@ $csrfToken = Session::getNewCSRFToken();
     <?php endif; ?>
 </div>
 <?php
-Html::footer();
+        Html::footer();
+        return new Response();
+    }
+}
