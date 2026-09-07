@@ -47,12 +47,16 @@ install.sh                         Script de déploiement (copie vers GLPI_PLUGI
 
 ### Détection des champs par le widget JS (`nacre-search.js`)
 
-Le widget cherche les champs `<input>`/`<textarea>` dont le nom/id/placeholder/aria-label/label contient `nacre` (normalisé, sans accents, insensible à la casse). Deux garde-fous critiques :
+Le widget cherche les champs `<input>`/`<textarea>` dont le nom/id/placeholder/aria-label/label contient `nacre` (normalisé, sans accents, insensible à la casse). Le scope réel en production : uniquement le formulaire dédié du catalogue de service, actuellement https://commandes.lps.u-psud.fr/Form/Render/3 (l'ID n'est pas codé en dur dans le JS — voir plus bas).
 
-- **`isTicketForm()`** : exclut explicitement les formulaires de tickets (`/Ticket/` nouvelle interface FormRenderer, `/ticket.form.php` ancienne interface). **Toujours vérifié en premier**, avant tout le reste.
-- **`isInFormCatalog()`** : le widget n'est actif que sur les pages `/Form/Render/` (catalogue de formulaires).
+Garde-fous, dans l'ordre de vérification :
 
-⚠️ **Piège connu** : si un futur bug rapporte le widget apparaissant là où il ne devrait pas, vérifier `isTicketForm()` et `isInFormCatalog()` en premier — GLPI a plusieurs interfaces (nouvelle FormRenderer vs ancienne `front/*.form.php`) et un chemin d'URL peut en manquer une.
+1. **`isTicketForm()`** : exclusion rapide par URL (`/Ticket/` nouvelle interface FormRenderer, `/ticket.form.php` ancienne interface). Gardée en défense en profondeur pour l'ancienne interface, mais **insuffisante seule** (voir piège ci-dessous).
+2. **`isInsideItilObjectForm(field)`** : garde-fou **autoritaire**, basé sur le DOM et non l'URL. Exclut tout champ situé sous `.itil-object-fields`, `#itil-data`, ou `[id^="plugin_fields_container_"]` (conteneur du plugin GLPI "Fields", id à suffixe aléatoire — sélecteur par préfixe uniquement). Couvre Ticket/Problem/Change quel que soit le chemin d'URL emprunté.
+3. **`isInFormCatalog()`** : nécessite `/Form/Render/` dans l'URL.
+4. **`getFormRendererQuestion(field)`** : confirmation positive — exige que le champ soit enveloppé dans `[data-glpi-form-renderer-question]` (marqueur d'une vraie question du catalogue). Choix fail-closed : si un futur champ catalogue authentique n'a pas ce wrapper, il n'aura pas le bouton — préférable à l'inverse.
+
+⚠️ **Piège connu (déjà survenu)** : GLPI 11 rend la création de ticket via le **même moteur Form Renderer** que le catalogue de formulaires — l'URL de création de ticket contient `/Form/Render/...` sans jamais contenir `/Ticket/` ni `/ticket.form.php`. Résultat : `isTicketForm()` seul ne suffit pas, `isInFormCatalog()` retourne `true` à tort, et le widget s'active sur un ticket. C'est exactement ce qui s'est produit en prod (champ "Code NACRE" du plugin Fields visible avec bouton de recherche à la création d'un ticket) malgré un premier fix basé uniquement sur l'URL. Le fix définitif ajoute `isInsideItilObjectForm()` (DOM, autoritaire) + `getFormRendererQuestion()` (confirmation positive) — **ne jamais se fier à l'URL seule pour distinguer un ticket d'un formulaire catalogue sur cette instance.**
 
 ## Droits et sécurité
 
