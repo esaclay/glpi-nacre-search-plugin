@@ -55,6 +55,20 @@ Le script copie le plugin dans `GLPI_PLUGIN_DIR/nacresearch`.
 
 Les données versionnées dans `public/data/nacre.json` sont conservées. Ensuite, activez le plugin depuis **Configuration > Plugins** dans GLPI.
 
+### Mise à jour en production
+
+Sur le serveur, depuis le clone source du plugin (`~/nacresearch-src`) :
+
+```bash
+cd ~/nacresearch-src
+git pull --ff-only
+GLPI_PLUGIN_DIR=/var/www/commandes/plugins bash ./install.sh
+rm -rf /var/www/commandes/var/cache/*
+systemctl restart apache2
+```
+
+Le vidage du cache GLPI et le redémarrage d'Apache sont nécessaires pour que les changements PHP et front (JS/CSS) soient bien pris en compte.
+
 ## Initialisation / mise à jour des données NACRE
 
 ### Initialisation locale

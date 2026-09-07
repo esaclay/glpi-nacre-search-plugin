@@ -76,6 +76,20 @@ runuser -u www-data -- php bin/bootstrap_lps_ticket_workflow.php [--glpi-root=/p
 GLPI_PLUGIN_DIR=/var/www/html/glpi/plugins ./install.sh
 ```
 
+### Mise à jour en production
+
+Procédure réelle utilisée sur le serveur de prod, depuis le clone source (`~/nacresearch-src`) :
+
+```bash
+cd ~/nacresearch-src
+git pull --ff-only
+GLPI_PLUGIN_DIR=/var/www/commandes/plugins bash ./install.sh
+rm -rf /var/www/commandes/var/cache/*
+systemctl restart apache2
+```
+
+Chemin GLPI de prod : `/var/www/commandes`. Le vidage du cache + restart Apache sont indispensables après un `install.sh` (sinon PHP/JS/CSS restent en cache).
+
 Il n'y a pas de suite de tests automatisés dans ce dépôt — la vérification se fait manuellement dans une instance GLPI (créer un ticket, tester le widget sur un formulaire, tester import/backup/restore).
 
 ## Conventions
