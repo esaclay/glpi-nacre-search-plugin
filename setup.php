@@ -62,9 +62,12 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
     return plugin_nacresearch_configuration_ready($verbose);
 }
 
-function plugin_nacresearch_config(): string
+function plugin_nacresearch_config(): array
 {
-    return '/plugins/nacresearch/front/config.php';
+    return [
+        'title'  => 'Gestion des données NACRES',
+        'url'    => '/plugins/nacresearch/front/config.php',
+    ];
 }
 
 function plugin_nacresearch_ensure_data_management_right(): void
