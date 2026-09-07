@@ -65,8 +65,8 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
 function plugin_nacresearch_config(): array
 {
     return [
-        'title'  => 'Gestion des données NACRES',
-        'url'    => '/plugins/nacresearch/front/config.php',
+        'title' => 'Gestion des données NACRES',
+        'url'   => Plugin::getWebDir('nacresearch') . '/front/config.php',
     ];
 }
 
