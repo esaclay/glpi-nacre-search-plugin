@@ -19,6 +19,7 @@ hook.php                           Fonctions runtime (config, droits, meta tags 
 inc/
   NacreData.php                    Cœur métier (~740 lignes) : config, import Excel, backups, recherche
   Profile.php                      Droits utilisateur (RIGHT_NACRE) — tab UI désactivé volontairement
+  Menu.php                         Entrée du menu latéral « Outils » (hook menu_toradd), gardée par RIGHT_NACRE
 front/
   config.php                       Interface admin (import / backup / restore)
   nacredata.form.php               Handler des actions d'import/backup/restore
@@ -66,6 +67,7 @@ Garde-fous, dans l'ordre de vérification :
 
 - Droit plugin : `plugin_nacresearch_data` (constante `Profile::RIGHT_NACRE`), READ/UPDATE, **désactivé par défaut** pour tous les profils sauf attribution explicite
 - L'onglet de gestion des droits dans l'UI Profile est **désactivé intentionnellement** (`inc/Profile.php` → `getTabNameForItem()` retourne `''`) — les droits sont gérés via le système natif GLPI (Administration > Profils), pas via un tab custom
+- Accès à `front/config.php` : deux chemins complémentaires — (1) icône engrenage sur **Configuration > Plugins** via `Hooks::CONFIG_PAGE` (nécessite le droit natif `config`), (2) entrée **Outils > NACRES** via `menu_toradd` + `inc/Menu.php`, gardée par `RIGHT_NACRE` seul (pour les profils type « administratrice financière » sans droit `config`). La page elle-même autorise `RIGHT_NACRE` UPDATE ou `config` UPDATE.
 - Import Excel : validations anti zip-bomb, anti-injection de formules, CSRF, taille max 10 Mo upload / 50 Mo décompressé, max 100 entrées ZIP
 - Backups : les 5 dernières versions sont conservées dans `config/nacre-backups/` (protégé par `.htaccess`)
 

@@ -15,7 +15,7 @@ if (!Session::haveRight(Profile::RIGHT_NACRE, UPDATE) && !Session::haveRight('co
     exit;
 }
 
-Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'config', 'plugins');
+Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'tools', 'GlpiPlugin\Nacresearch\Menu');
 
 try {
     $backups = NacreData::listBackups();

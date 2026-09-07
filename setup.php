@@ -12,6 +12,7 @@ use GlpiPlugin\Nacresearch\Profile as NacresearchProfile;
 
 require_once __DIR__ . '/hook.php';
 require_once __DIR__ . '/inc/Profile.php';
+require_once __DIR__ . '/inc/Menu.php';
 
 define('PLUGIN_NACRESEARCH_VERSION', '1.1.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
@@ -37,6 +38,12 @@ function plugin_init_nacresearch(): void
     if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';
     }
+
+    // Entrée dans le menu latéral « Outils » : accessible avec le seul droit
+    // plugin RIGHT_NACRE, sans le droit natif `config` (page Configuration > Plugins).
+    $PLUGIN_HOOKS['menu_toradd']['nacresearch'] = [
+        'tools' => 'GlpiPlugin\Nacresearch\Menu',
+    ];
 }
 
 function plugin_version_nacresearch(): array
