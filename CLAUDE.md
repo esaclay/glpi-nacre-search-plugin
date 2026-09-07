@@ -9,6 +9,7 @@ Plugin **GLPI 11** qui injecte une recherche de codes NACRE (nomenclature compta
 - Nom technique du plugin (clé) : `nacresearch`
 - Version actuelle : voir `plugin.xml` et `PLUGIN_NACRESEARCH_VERSION` dans `setup.php`
 - Compatibilité : GLPI 11.0.0 → 11.0.99, PHP 8.1+
+- Instance GLPI de production : https://commandes.lps.u-psud.fr (chemin serveur `/var/www/commandes`)
 
 ## Architecture
 
