@@ -67,9 +67,19 @@
         return window.location.pathname.includes('/Form/Render/');
     }
 
+    function isTicketForm() {
+        // Check if we're rendering a Ticket form
+        return window.location.pathname.includes('/Ticket/');
+    }
+
     function fieldMatches(field) {
         // Only enable in Form/Render catalog (not in tickets or profiles)
         if (!isInFormCatalog()) {
+            return false;
+        }
+
+        // Exclude ticket forms entirely
+        if (isTicketForm()) {
             return false;
         }
 
