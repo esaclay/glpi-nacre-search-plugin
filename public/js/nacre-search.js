@@ -68,18 +68,27 @@
     }
 
     function isTicketForm() {
-        // Check if we're rendering a Ticket form
-        return window.location.pathname.includes('/Ticket/');
+        // Check if we're rendering a Ticket form (new or old interface)
+        var pathname = window.location.pathname;
+        // New FormRenderer interface: /Ticket/
+        if (pathname.includes('/Ticket/')) {
+            return true;
+        }
+        // Old interface: /front/ticket.form.php
+        if (pathname.includes('/ticket.form.php')) {
+            return true;
+        }
+        return false;
     }
 
     function fieldMatches(field) {
-        // Only enable in Form/Render catalog (not in tickets or profiles)
-        if (!isInFormCatalog()) {
+        // Exclude ticket forms entirely
+        if (isTicketForm()) {
             return false;
         }
 
-        // Exclude ticket forms entirely
-        if (isTicketForm()) {
+        // Only enable in Form/Render catalog (not in profiles)
+        if (!isInFormCatalog()) {
             return false;
         }
 
