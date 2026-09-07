@@ -33,8 +33,6 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
-    Plugin::registerClass(NacresearchProfile::class, ['addtabon' => ['Profile']]);
-    
 }
 
 function plugin_version_nacresearch(): array
