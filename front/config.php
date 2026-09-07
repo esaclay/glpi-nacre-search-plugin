@@ -12,9 +12,12 @@ $user = new User();
 $user->getFromDB(Session::getLoginUserID());
 if ($user->getID() > 0) {
     $profile = new Profile();
-    $profile->getFromDB($user->fields['profiles_id']);
-    $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
-        || Session::haveRight('config', UPDATE);
+    if ($profile->getFromDB($user->fields['profiles_id'])) {
+        $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
+            || Session::haveRight('config', UPDATE);
+    } else {
+        $isAuthorized = false;
+    }
     if (!$isAuthorized) {
         Html::displayNotFoundError();
         exit;
