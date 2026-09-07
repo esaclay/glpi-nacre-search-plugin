@@ -41,7 +41,7 @@ function plugin_init_nacresearch(): void
 
     // Entrée dans le menu latéral « Outils » : accessible avec le seul droit
     // plugin RIGHT_NACRE, sans le droit natif `config` (page Configuration > Plugins).
-    $PLUGIN_HOOKS['menu_toradd']['nacresearch'] = [
+    $PLUGIN_HOOKS[Hooks::MENU_TOADD]['nacresearch'] = [
         'tools' => 'GlpiPlugin\Nacresearch\Menu',
     ];
 }
