@@ -63,7 +63,21 @@
             .trim();
     }
 
+    function isInFormCatalog() {
+        return window.location.pathname.includes('/Form/Render/');
+    }
+
     function fieldMatches(field) {
+        // Only enable in Form/Render catalog (not in tickets or profiles)
+        if (!isInFormCatalog()) {
+            return false;
+        }
+
+        // Skip checkboxes (used in profile tabs)
+        if (field.type === 'checkbox') {
+            return false;
+        }
+
         var labels = Array.prototype.map.call(field.labels || [], function (label) {
             return label.textContent;
         });

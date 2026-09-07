@@ -7,12 +7,21 @@ require_once dirname(__DIR__) . '/inc/NacreData.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
 
-if (!plugin_nacresearch_can_manage_data()) {
-    Session::checkRight(NacreData::RIGHT_DATA_MANAGEMENT, UPDATE);
+// Autoriser UNIQUEMENT: Super Admin OU profil "Administratrice financière"
+$user = new User();
+$user->getFromDB(Session::getLoginUserID());
+if ($user->getID() > 0) {
+    $profile = new Profile();
+    $profile->getFromDB($user->fields['profiles_id']);
+    $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
+        || Session::haveRight('config', UPDATE);
+    if (!$isAuthorized) {
+        Html::displayNotFoundError();
+        exit;
+    }
 }
 
-// TEST DIAGNOSTIQUE : on commente temporairement la vérification CSRF
-// Session::checkCSRF($_POST);
+Session::checkCSRF($_POST);
 
 try {
     $action = (string) ($_POST['action'] ?? '');

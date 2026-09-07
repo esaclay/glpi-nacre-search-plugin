@@ -20,13 +20,12 @@ define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 function plugin_init_nacresearch(): void
 {
     global $PLUGIN_HOOKS;
-    
+
     $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
 
-    // Active l'entrée du plugin dans le menu latéral (section Plugins)
+    // Gestion des données NACRES accessible via le menu latéral
     $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
 
-    
     $PLUGIN_HOOKS['rights_information']['nacresearch'] = [
         [
             'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
@@ -37,11 +36,7 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
-    $PLUGIN_HOOKS['config_page']['nacresearch'] = 'front/config.php';
     Plugin::registerClass(NacresearchProfile::class, ['addtabon' => ['Profile']]);
-    //if (plugin_nacresearch_can_manage_data()) {
-        $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
-    //}
     
 }
 
