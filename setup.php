@@ -23,9 +23,6 @@ function plugin_init_nacresearch(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
 
-    // Gestion des données NACRES accessible via le menu latéral
-    $PLUGIN_HOOKS['menu_entry']['nacresearch'] = 'front/config.php';
-
     $PLUGIN_HOOKS['rights_information']['nacresearch'] = [
         [
             'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
