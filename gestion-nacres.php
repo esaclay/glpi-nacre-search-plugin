@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-include './inc/includes.php';
+include '../../inc/includes.php';
 require_once __DIR__ . '/inc/NacreData.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
