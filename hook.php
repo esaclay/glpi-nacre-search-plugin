@@ -9,30 +9,6 @@ use GlpiPlugin\Nacresearch\Profile;
 use Session;
 use Throwable;
 
-/**
- * Installation du plugin nacresearch
- */
-function plugin_nacresearch_install(): bool
-{
-    return true;
-}
-
-/**
- * Désinstallation du plugin nacresearch
- */
-function plugin_nacresearch_uninstall(): bool
-{
-    global $DB;
-
-    // Suppression des droits du plugin dans la table native GLPI
-    $DB->delete(
-        'glpi_profilerights',
-        ['name' => Profile::RIGHT_NACRE]
-    );
-
-    return true;
-}
-
 function plugin_nacresearch_runtime_ready(): bool
 {
     return version_compare(PHP_VERSION, '8.1.0', '>=');
