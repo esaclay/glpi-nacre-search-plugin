@@ -4,24 +4,15 @@ declare(strict_types=1);
 
 include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
+require_once dirname(__DIR__) . '/inc/Profile.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
+use GlpiPlugin\Nacresearch\Profile;
 
-// Autoriser UNIQUEMENT: Super Admin OU profil "Administratrice financière"
-$user = new User();
-$user->getFromDB(Session::getLoginUserID());
-if ($user->getID() > 0) {
-    $profile = new Profile();
-    if ($profile->getFromDB($user->fields['profiles_id'])) {
-        $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
-            || Session::haveRight('config', UPDATE);
-    } else {
-        $isAuthorized = false;
-    }
-    if (!$isAuthorized) {
-        Html::displayNotFoundError();
-        exit;
-    }
+// Require RIGHT_NACRE (data management) or config UPDATE (super admin)
+if (!Session::haveRight(Profile::RIGHT_NACRE, UPDATE) && !Session::haveRight('config', UPDATE)) {
+    Html::displayNotFoundError();
+    exit;
 }
 
 Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'config', 'plugins');
