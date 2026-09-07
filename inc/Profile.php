@@ -17,10 +17,7 @@ class Profile extends CommonDBTM
 
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
-        if ($item instanceof GlpiProfile && $item->getID() > 0) {
-            return self::createTabEntry('NACRES');
-        }
-
+        // Onglet NACRES désactivé - droits gérés par nom de profil simple
         return '';
     }
 
