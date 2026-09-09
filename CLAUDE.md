@@ -64,13 +64,15 @@ Garde-fous, dans l'ordre de vérification :
 
 **Ce champ Fields ne doit PAS être supprimé** : GLPI refuse d'ailleurs la suppression ("Le champ ... ne peut pas être supprimé car il est utilisé dans une question du formulaire : CODE NACRE"). Il est en réalité la **destination de mapping** de la question "Code NACRE" du formulaire de catalogue (`Form/Render/3`) — quand ce formulaire crée un ticket, la valeur saisie est stockée dans ce champ Fields. Le supprimer casserait cette liaison. Décision retenue (2026-09-07) : **laisser le champ tel quel** sur les tickets — il est vide et sans bouton de recherche (le fix ci-dessus suffit), et reste nécessaire au bon fonctionnement du formulaire de catalogue.
 
+⚠️ **Rendre la question "CODE NACRE" obligatoire — limitation GLPI 11** : le bouton « Obligatoire » de l'éditeur de formulaire est **désactivé pour les questions de type « Champ »** (celles liées au plugin Fields), il ne fonctionne que pour les questions texte/liste natives. Contournement retenu (2026-09-09) sur le Form 3 : **condition sur le bouton d'envoi** (Propriétés du formulaire → « Conditions d'affichage du bouton d'envoi » → *Visible si → CODE NACRE → N'est pas vide*) + mention « Obligatoire : … » dans la description de la question. Ne PAS passer le champ Fields lui-même en obligatoire (Configuration > Champs supplémentaires) : ça l'imposerait aussi sur le formulaire ticket côté technicien.
+
 ### Observateurs depuis un formulaire de catalogue (`inc/ObserverSync.php`)
 
 Sous-système **serveur** distinct du widget JS. Objectif : permettre au formulaire « Demande d'achat » (`Form/Render/3`) de désigner des observateurs qui seront ajoutés au ticket, y compris des personnes du labo **sans compte GLPI** (jamais connectées via CAS).
 
 Montage :
 
-1. Le formulaire a une question type **E-mail** « Observateurs (adresses mail) ». La destination Ticket → Observateurs est réglée sur *« Réponse à la dernière "Observateurs" ou question "E-mail" »* → GLPI ajoute nativement chaque adresse comme observateur **« acteur e-mail »** (`glpi_tickets_users` avec `users_id = 0`, `alternative_email` renseigné, notifications seules).
+1. Le formulaire a une question type **E-mail** « Observateurs (adresses mail) » (question unique, non obligatoire). La destination Ticket → Acteurs → Observateurs est réglée sur *« Réponse depuis une question spécifique » → « Observateurs (adresses mail) »* → GLPI ajoute nativement chaque adresse comme observateur **« acteur e-mail »** (`glpi_tickets_users` avec `users_id = 0`, `alternative_email` renseigné, notifications seules). Choix assumé : **un seul champ e-mail**, pas de 2e question « Acteurs » (autocomplétion des comptes existants) — jugé trop lourd pour le gain.
 2. Hook `Hooks::ITEM_ADD` sur `Ticket` (`plugin_nacresearch_ticket_add` → `ObserverSync::syncFromTicket()`). Pour chaque observateur acteur-e-mail dont l'adresse appartient au domaine `observers.ldap_email_domain` :
    - compte GLPI trouvé par e-mail (`glpi_useremails`) → on rattache la ligne au compte ;
    - sinon `AuthLDAP::ldapImportUserByServerId(IDENTIFIER_LOGIN = partie locale de l'e-mail, ACTION_IMPORT, serveur)` → import du compte puis rattachement ;
