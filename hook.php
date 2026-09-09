@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/inc/NacreData.php';
+require_once __DIR__ . '/inc/ObserverSync.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
+use GlpiPlugin\Nacresearch\ObserverSync;
 use GlpiPlugin\Nacresearch\Profile;
-use Session;
-use Throwable;
 
 function plugin_nacresearch_runtime_ready(): bool
 {
@@ -27,7 +27,7 @@ function plugin_nacresearch_configuration_ready(bool $verbose = false): bool
     try {
         NacreData::loadConfig();
         NacreData::loadSourceFile(NacreData::getPublicDataPath());
-    } catch (Throwable $exception) {
+    } catch (\Throwable $exception) {
         if ($verbose) {
             echo $exception->getMessage();
         }
@@ -38,16 +38,25 @@ function plugin_nacresearch_configuration_ready(bool $verbose = false): bool
     return true;
 }
 
+/**
+ * Hook item_add sur Ticket : rattache les observateurs saisis en adresse e-mail
+ * dans un formulaire de catalogue (import LDAP à la volée si besoin).
+ */
+function plugin_nacresearch_ticket_add(\Ticket $ticket): void
+{
+    ObserverSync::syncFromTicket($ticket);
+}
+
 function plugin_nacresearch_can_manage_data(): bool
 {
-    if (!Session::getLoginUserID()) {
+    if (!\Session::getLoginUserID()) {
         return false;
     }
 
     // Alignement sur le droit natif Profile::RIGHT_NACRE (Mettre à jour ou Créer)
-    return Session::haveRight(Profile::RIGHT_NACRE, UPDATE)
-        || Session::haveRight(Profile::RIGHT_NACRE, CREATE)
-        || Session::haveRight('config', UPDATE);
+    return \Session::haveRight(Profile::RIGHT_NACRE, UPDATE)
+        || \Session::haveRight(Profile::RIGHT_NACRE, CREATE)
+        || \Session::haveRight('config', UPDATE);
 }
 
 function plugin_nacresearch_header_tags(): array

@@ -14,7 +14,7 @@ require_once __DIR__ . '/hook.php';
 require_once __DIR__ . '/inc/Profile.php';
 require_once __DIR__ . '/inc/Menu.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.1.0');
+define('PLUGIN_NACRESEARCH_VERSION', '1.2.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
@@ -34,6 +34,13 @@ function plugin_init_nacresearch(): void
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
+
+    // À la création d'un ticket (via formulaire de catalogue notamment), résout
+    // vers un compte GLPI — importé du LDAP si nécessaire — les observateurs
+    // saisis en adresse e-mail. Voir GlpiPlugin\Nacresearch\ObserverSync.
+    $PLUGIN_HOOKS[Hooks::ITEM_ADD]['nacresearch'] = [
+        'Ticket' => 'plugin_nacresearch_ticket_add',
+    ];
 
     if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';

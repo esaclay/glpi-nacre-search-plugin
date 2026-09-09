@@ -15,11 +15,12 @@ Plugin **GLPI 11** qui injecte une recherche de codes NACRE (nomenclature compta
 
 ```
 setup.php                          Point d'entrée : hooks, install/uninstall
-hook.php                           Fonctions runtime (config, droits, meta tags header)
+hook.php                           Fonctions runtime (config, droits, meta tags header, hook item_add Ticket)
 inc/
   NacreData.php                    Cœur métier (~740 lignes) : config, import Excel, backups, recherche
   Profile.php                      Droits utilisateur (RIGHT_NACRE) — tab UI désactivé volontairement
   Menu.php                         Entrée du menu latéral « Outils » (hook menu_toradd), gardée par RIGHT_NACRE
+  ObserverSync.php                 Hook item_add Ticket : résout/importe depuis LDAP les observateurs saisis en e-mail
 front/
   config.php                       Interface admin (import / backup / restore)
   nacredata.form.php               Handler des actions d'import/backup/restore
@@ -62,6 +63,30 @@ Garde-fous, dans l'ordre de vérification :
 ⚠️ **Distinction importante — le CHAMP "Code NACRE" n'est pas le WIDGET** : le champ texte "Code NACRE" visible sur les tickets en production est un champ personnalisé ajouté par le plugin GLPI tiers **"Fields"** (Configurer > Fields), configuré indépendamment sur le type `Ticket` — **ce plugin `nacresearch` ne le crée pas et ne peut pas le supprimer par du code**. Notre widget ne fait qu'ajouter (ou, correctement, ne pas ajouter) un bouton de recherche à côté d'un champ existant dont le nom contient `nacre`.
 
 **Ce champ Fields ne doit PAS être supprimé** : GLPI refuse d'ailleurs la suppression ("Le champ ... ne peut pas être supprimé car il est utilisé dans une question du formulaire : CODE NACRE"). Il est en réalité la **destination de mapping** de la question "Code NACRE" du formulaire de catalogue (`Form/Render/3`) — quand ce formulaire crée un ticket, la valeur saisie est stockée dans ce champ Fields. Le supprimer casserait cette liaison. Décision retenue (2026-09-07) : **laisser le champ tel quel** sur les tickets — il est vide et sans bouton de recherche (le fix ci-dessus suffit), et reste nécessaire au bon fonctionnement du formulaire de catalogue.
+
+### Observateurs depuis un formulaire de catalogue (`inc/ObserverSync.php`)
+
+Sous-système **serveur** distinct du widget JS. Objectif : permettre au formulaire « Demande d'achat » (`Form/Render/3`) de désigner des observateurs qui seront ajoutés au ticket, y compris des personnes du labo **sans compte GLPI** (jamais connectées via CAS).
+
+Montage :
+
+1. Le formulaire a une question type **E-mail** « Observateurs (adresses mail) ». La destination Ticket → Observateurs est réglée sur *« Réponse à la dernière "Observateurs" ou question "E-mail" »* → GLPI ajoute nativement chaque adresse comme observateur **« acteur e-mail »** (`glpi_tickets_users` avec `users_id = 0`, `alternative_email` renseigné, notifications seules).
+2. Hook `Hooks::ITEM_ADD` sur `Ticket` (`plugin_nacresearch_ticket_add` → `ObserverSync::syncFromTicket()`). Pour chaque observateur acteur-e-mail dont l'adresse appartient au domaine `observers.ldap_email_domain` :
+   - compte GLPI trouvé par e-mail (`glpi_useremails`) → on rattache la ligne au compte ;
+   - sinon `AuthLDAP::ldapImportUserByServerId(IDENTIFIER_LOGIN = partie locale de l'e-mail, ACTION_IMPORT, serveur)` → import du compte puis rattachement ;
+   - introuvable dans l'annuaire (personne hors labo) → **on ne touche à rien**, l'acteur e-mail reste (notifications seules).
+   - Le rattachement est une **écriture directe en base** (`$DB->update`/`delete` sur `glpi_tickets_users`) : le hook tourne dans la session du demandeur, qui n'a pas le droit `Ticket_User::update()`. Pas de doublon si la personne est déjà observatrice (question Acteurs native).
+3. `ObserverSync::syncFromTicket()` **ne lève jamais** : toute erreur est journalisée via `Toolbox::logInFile('nacresearch', …)` (fichier `files/_log/nacresearch.log`) et la création du ticket se poursuit.
+
+Config (`config/defaults.php` → clé `observers`, surchargeable dans `config/local.php`) :
+
+| Clé | Défaut | Rôle |
+|---|---|---|
+| `enabled` | `true` | Coupe complètement le hook si `false` |
+| `ldap_server_id` | `null` | ID annuaire LDAP GLPI ; `null` ⇒ premier annuaire actif (`is_default` d'abord) |
+| `ldap_email_domain` | `universite-paris-saclay.fr` | Seules les adresses de ce domaine sont candidates à l'import ; vide ⇒ toutes |
+
+Prod (vérifié 2026-09-09, cf mémoires `glpi-ldap-cas-config` / `glpi-prod-topology`) : annuaire « Adonis » ID 1, champ identifiant `uid` = `prenom.nom` = identifiant renvoyé par le CAS (donc un compte importé se lie sans doublon à la future connexion CAS). Filtre de connexion LDAP `(departmentNumber=100)` ⇒ seuls les personnels LPS sont importables ; c'est ce filtre qui distingue « collègue labo → compte créé » de « externe → notifications seules ». La règle d'habilitation « Root » (ruleright ID 76) attribue automatiquement le profil Self-Service aux comptes issus du LDAP.
 
 ## Droits et sécurité
 
@@ -114,3 +139,5 @@ Il n'y a pas de suite de tests automatisés dans ce dépôt — la vérification
 ## Contexte historique récent
 
 Le plugin a traversé une phase de simplification : une approche par contrôleur Symfony pour la page de gestion NACRES a été abandonnée au profit d'une URL directe simple. L'onglet Profile custom a été désactivé au profit des droits GLPI natifs. `front/profile.form.php` (handler orphelin jamais appelé, référençant une méthode inexistante) a été supprimé.
+
+**1.2.0** : ajout du sous-système serveur `ObserverSync` (hook `item_add` sur Ticket) — voir « Observateurs depuis un formulaire de catalogue » ci-dessus. Corrige au passage deux `use` non-composés dans `hook.php` (`use Session;` / `use Throwable;`) qui polluaient `php-errors.log` à chaque chargement.
