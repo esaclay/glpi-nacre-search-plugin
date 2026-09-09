@@ -37,6 +37,9 @@ bin/
   bootstrap_lps_ticket_workflow.php CLI : bootstrap entité/groupe/profils pour le workflow financier LPS
 resources/
   nacre.example.json               Exemple de données NACRE
+docs/
+  guide-equipe-financiere.html     Guide d'utilisation prod pour l'équipe financière (source, mise en page + @media print)
+  guide-equipe-financiere.pdf      Export PDF du guide (Chrome headless --print-to-pdf)
 install.sh                         Script de déploiement (copie vers GLPI_PLUGIN_DIR)
 ```
 
@@ -143,3 +146,5 @@ Il n'y a pas de suite de tests automatisés dans ce dépôt — la vérification
 Le plugin a traversé une phase de simplification : une approche par contrôleur Symfony pour la page de gestion NACRES a été abandonnée au profit d'une URL directe simple. L'onglet Profile custom a été désactivé au profit des droits GLPI natifs. `front/profile.form.php` (handler orphelin jamais appelé, référençant une méthode inexistante) a été supprimé.
 
 **1.2.0** : ajout du sous-système serveur `ObserverSync` (hook `item_add` sur Ticket) — voir « Observateurs depuis un formulaire de catalogue » ci-dessus. Corrige au passage deux `use` non-composés dans `hook.php` (`use Session;` / `use Throwable;`) qui polluaient `php-errors.log` à chaque chargement.
+
+`docs/guide-equipe-financiere.html` : guide d'utilisation de l'instance de prod pour les profils financiers (accès, formulaire, cycle de vie des tickets, droits, **règle d'archivage des pièces jointes**). Contient des placeholders `[...]` (emplacement de sauvegarde, contact support) à remplir avant diffusion. Un artifact privé non partagé existe côté compte utilisateur (contenu confidentiel) — ne pas le rendre public.

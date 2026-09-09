@@ -1,0 +1,681 @@
+<title>Circuit des demandes d'achat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #f3f5f6;
+    --surface: #ffffff;
+    --surface-sunk: #eef1f3;
+    --ink: #1a1f24;
+    --ink-soft: #545e67;
+    --rule: #d9dde0;
+    --rule-strong: #c3c9ce;
+    --accent: #2f5b87;
+    --accent-ink: #234a70;
+    --accent-soft: #e7eef4;
+    --accent-border: #b9cddf;
+    --warn: #8f5c11;
+    --warn-soft: #f5ecdb;
+    --warn-rule: #e2c894;
+    --ok: #3c7551;
+    --ok-soft: #e5efe8;
+
+    --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    --measure: 68ch;
+    --step--1: 0.83rem;
+    --step-0: 1.0625rem;
+    --step-1: 1.28rem;
+    --step-2: 1.62rem;
+    --step-3: 2.15rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181b;
+      --surface: #1b2125;
+      --surface-sunk: #12171a;
+      --ink: #e7eaec;
+      --ink-soft: #9aa4ad;
+      --rule: #2b3238;
+      --rule-strong: #3a434b;
+      --accent: #82b2db;
+      --accent-ink: #a9cdea;
+      --accent-soft: #1c2a36;
+      --accent-border: #35506a;
+      --warn: #d8a45e;
+      --warn-soft: #271f14;
+      --warn-rule: #4a3c23;
+      --ok: #74b48b;
+      --ok-soft: #16211a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181b;
+    --surface: #1b2125;
+    --surface-sunk: #12171a;
+    --ink: #e7eaec;
+    --ink-soft: #9aa4ad;
+    --rule: #2b3238;
+    --rule-strong: #3a434b;
+    --accent: #82b2db;
+    --accent-ink: #a9cdea;
+    --accent-soft: #1c2a36;
+    --accent-border: #35506a;
+    --warn: #d8a45e;
+    --warn-soft: #271f14;
+    --warn-rule: #4a3c23;
+    --ok: #74b48b;
+    --ok-soft: #16211a;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    line-height: 1.62;
+    font-feature-settings: "kern";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(1.4rem, 4vw, 3.5rem) clamp(1.1rem, 4vw, 2.4rem) 5rem;
+  }
+  @media (min-width: 1080px) {
+    .page {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      column-gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: start;
+    }
+  }
+
+  /* ---- Table of contents ---- */
+  .toc {
+    display: none;
+    font-size: var(--step--1);
+  }
+  @media (min-width: 1080px) {
+    .toc {
+      display: block;
+      position: sticky;
+      top: 2.4rem;
+      border-left: 2px solid var(--rule);
+      padding-left: 1rem;
+    }
+  }
+  .toc__title {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    margin: 0 0 0.9rem;
+  }
+  .toc ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+  .toc a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    display: block;
+    line-height: 1.35;
+  }
+  .toc a:hover, .toc a:focus-visible { color: var(--accent-ink); }
+  .toc li[data-num] a::before {
+    content: attr(data-num);
+    font-family: var(--font-mono);
+    color: var(--rule-strong);
+    margin-right: 0.5rem;
+  }
+
+  main { min-width: 0; max-width: var(--measure); }
+
+  /* ---- Masthead ---- */
+  .masthead { margin-bottom: 3rem; }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--accent-ink);
+    margin: 0 0 0.9rem;
+  }
+  h1 {
+    font-size: var(--step-3);
+    line-height: 1.12;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0 0 0.9rem;
+  }
+  .standfirst {
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0 0 1.8rem;
+    max-width: 46ch;
+  }
+  .accesskey {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.9rem;
+    padding: 0.95rem 1.1rem;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-border);
+    border-radius: 7px;
+  }
+  .accesskey .lbl {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent-ink);
+  }
+  .accesskey a {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--accent-ink);
+    font-weight: 500;
+    word-break: break-all;
+  }
+  .accesskey .note { font-size: var(--step--1); color: var(--ink-soft); width: 100%; }
+
+  /* ---- Sections ---- */
+  section { margin-top: 3.4rem; scroll-margin-top: 2rem; }
+  section > h2 {
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0 0 0.4rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  section > h2 .s-num {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--accent);
+    margin-right: 0.7rem;
+  }
+  .lede { color: var(--ink-soft); margin: 0.8rem 0 1.4rem; }
+
+  h3 {
+    font-size: var(--step-1);
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 2rem 0 0.6rem;
+  }
+  p { margin: 0 0 1rem; }
+  main a { color: var(--accent-ink); text-underline-offset: 2px; text-decoration-thickness: 1px; }
+
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.3rem; }
+  li { margin: 0.4rem 0; }
+  li::marker { color: var(--rule-strong); }
+
+  code, .field {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--surface-sunk);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 0.08em 0.4em;
+    white-space: nowrap;
+  }
+
+  strong { font-weight: 600; }
+
+  /* ---- Lifecycle steps ---- */
+  .steps { list-style: none; margin: 1.5rem 0; padding: 0; display: flex; flex-direction: column; gap: 0; }
+  .steps li {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    column-gap: 1rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+  .steps li:last-child { border-bottom: 1px solid var(--rule); }
+  .steps .n {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--accent);
+    padding-top: 0.1rem;
+  }
+  .steps .h { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+  .steps .who {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ink-soft);
+    border: 1px solid var(--rule-strong);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    white-space: nowrap;
+    margin-left: 0.5rem;
+    display: inline-block;
+    vertical-align: 0.08em;
+  }
+  .steps .b { color: var(--ink-soft); font-size: var(--step--1); }
+  .steps .b p { margin: 0.3rem 0 0; }
+
+  /* ---- Callout: not a backup ---- */
+  .callout {
+    margin: 2rem 0;
+    padding: 1.3rem 1.4rem;
+    background: var(--warn-soft);
+    border: 1px solid var(--warn-rule);
+    border-left: 4px solid var(--warn);
+    border-radius: 6px;
+  }
+  .callout h3 {
+    margin: 0 0 0.5rem;
+    font-size: var(--step-1);
+    color: var(--warn);
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+  .callout h3 .tag {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--warn);
+    border-radius: 3px;
+    padding: 0.12em 0.4em;
+    color: var(--warn);
+  }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .rule-line {
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--warn-rule);
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* ---- Rights table ---- */
+  .table-wrap { overflow-x: auto; margin: 1.4rem 0; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 32rem;
+    font-size: var(--step--1);
+  }
+  caption {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    padding-bottom: 0.7rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  thead th {
+    font-weight: 600;
+    font-size: 0.82rem;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  tbody th {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  td.y { color: var(--ok); font-weight: 500; }
+  td.n { color: var(--ink-soft); }
+  td .mark { font-family: var(--font-mono); margin-right: 0.35rem; }
+
+  /* ---- Field list ---- */
+  .fields { list-style: none; margin: 1.3rem 0; padding: 0; }
+  .fields li {
+    display: grid;
+    grid-template-columns: minmax(9rem, 12rem) 1fr;
+    column-gap: 1.2rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--rule);
+    margin: 0;
+  }
+  .fields li:last-child { border-bottom: 1px solid var(--rule); }
+  .fields .fname { font-weight: 500; }
+  .fields .req {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+    margin-top: 0.3rem;
+  }
+  .fields .fdesc { color: var(--ink-soft); font-size: var(--step--1); }
+  @media (max-width: 520px) {
+    .fields li { grid-template-columns: 1fr; row-gap: 0.3rem; }
+  }
+
+  .note-block {
+    margin: 1.4rem 0;
+    padding: 0.4rem 0 0.4rem 1.1rem;
+    border-left: 3px solid var(--rule-strong);
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+
+  footer {
+    margin-top: 4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  footer .todo {
+    background: var(--surface-sunk);
+    border: 1px dashed var(--rule-strong);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.2rem;
+  }
+  footer .todo strong { color: var(--ink); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ---- Print ---- */
+  @media print {
+    :root {
+      --paper: #ffffff;
+      --surface: #ffffff;
+      --surface-sunk: #f1f3f4;
+      --ink: #16191d;
+      --ink-soft: #4a545c;
+      --rule: #cfd4d8;
+      --rule-strong: #b3bac0;
+      --accent: #2f5b87;
+      --accent-ink: #234a70;
+      --accent-soft: #eef3f7;
+      --accent-border: #b9cddf;
+      --warn: #7f5210;
+      --warn-soft: #f6efe0;
+      --warn-rule: #ddc79a;
+      --ok: #35694a;
+      --ok-soft: #e9f1eb;
+      --step-0: 10.5pt;
+      --step--1: 8.7pt;
+      --step-1: 13pt;
+      --step-2: 15.5pt;
+      --step-3: 21pt;
+    }
+    @page { margin: 16mm 18mm 18mm; }
+    html { scroll-behavior: auto; }
+    body {
+      background: #fff;
+      font-size: var(--step-0);
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .page { display: block; max-width: none; padding: 0; }
+    .toc { display: none; }
+    main { max-width: none; }
+    .masthead { margin-bottom: 1.6rem; }
+    section { margin-top: 1.6rem; }
+    h1 { font-size: var(--step-3); }
+    .standfirst { font-size: var(--step-1); }
+    h2, h3, .callout h3, caption { break-after: avoid; }
+    .callout, .steps li, .fields li, .note-block, .accesskey,
+    table, tr, .toc, footer .todo { break-inside: avoid; }
+    thead { display: table-header-group; }
+    a { color: var(--accent-ink); text-decoration: none; }
+    .steps li, .fields li { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    footer { margin-top: 2rem; }
+  }
+</style>
+
+<div class="page">
+  <nav class="toc" aria-label="Sommaire">
+    <p class="toc__title">Sommaire</p>
+    <ol>
+      <li data-num="1"><a href="#acces">Accès et connexion</a></li>
+      <li data-num="2"><a href="#formulaire">Le formulaire de demande</a></li>
+      <li data-num="3"><a href="#ticket">Le ticket, étape par étape</a></li>
+      <li data-num="4"><a href="#droits">Qui peut faire quoi</a></li>
+      <li data-num="5"><a href="#archivage">Pièces jointes et archivage</a></li>
+      <li data-num="6"><a href="#nacre">Codes NACRE</a></li>
+      <li data-num="7"><a href="#aide">Un problème&nbsp;?</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="masthead">
+      <p class="kicker">LPS · Équipe financière · Guide interne</p>
+      <h1>Circuit des demandes d'achat</h1>
+      <p class="standfirst">Comment une demande passe du formulaire au bon de commande, et ce que l'équipe financière doit faire à chaque étape.</p>
+      <div class="accesskey">
+        <span class="lbl">Adresse</span>
+        <a href="https://commandes.lps.u-psud.fr">commandes.lps.u-psud.fr</a>
+        <span class="note">Connexion « CAS » avec vos identifiants Université Paris-Saclay (ENT / messagerie). Aucun mot de passe à créer.</span>
+      </div>
+    </header>
+
+    <section id="acces">
+      <h2><span class="s-num">01</span>Accès et connexion</h2>
+      <p class="lede">Tout le personnel du laboratoire peut déposer une demande. L'accès au traitement est réservé aux profils financiers.</p>
+      <ul>
+        <li><strong>Se connecter&nbsp;:</strong> ouvrir <a href="https://commandes.lps.u-psud.fr">commandes.lps.u-psud.fr</a> et cliquer sur <strong>Connexion CAS</strong>. Un compte est créé automatiquement à la première connexion.</li>
+        <li><strong>Demandeurs</strong> (tout le labo)&nbsp;: interface simplifiée. Ils voient le catalogue de services, déposent une demande, et suivent leurs propres tickets.</li>
+        <li><strong>Gestionnaire financier</strong> et <strong>Administratrice financière</strong>&nbsp;: interface complète (menu <em>Assistance&nbsp;› Tickets</em>). Détail des droits en <a href="#droits">section&nbsp;4</a>.</li>
+      </ul>
+      <div class="note-block">
+        Le rattachement à un groupe métier reste manuel&nbsp;: un nouveau compte financier doit être ajouté au groupe <span class="field">Gestionnaires financiers</span> par un administrateur pour recevoir les tickets et les notifications.
+      </div>
+    </section>
+
+    <section id="formulaire">
+      <h2><span class="s-num">02</span>Le formulaire de demande</h2>
+      <p class="lede">Formulaire « Demande d'achat »&nbsp;: <a href="https://commandes.lps.u-psud.fr/Form/Render/3">commandes.lps.u-psud.fr/Form/Render/3</a>, aussi accessible depuis <em>Assistance&nbsp;› Catalogue de services</em>.</p>
+
+      <h3>Ce que le demandeur saisit</h3>
+      <ul class="fields">
+        <li>
+          <span><span class="fname">Équipe</span><br><span class="req">Obligatoire</span></span>
+          <span class="fdesc">Équipe de recherche du demandeur, à choisir dans la liste (<span class="field">CHIMIE</span>, <span class="field">CRYO</span>, <span class="field">MECA</span>, <span class="field">RMN</span>, <span class="field">THEO</span>…).</span>
+        </li>
+        <li>
+          <span class="fname">Objet de l'achat</span>
+          <span class="fdesc">Description libre de ce qui doit être commandé.</span>
+        </li>
+        <li>
+          <span class="fname">Pièce jointe</span>
+          <span class="fdesc"><strong>Un seul fichier</strong>, 25&nbsp;Mo maximum. Formats acceptés&nbsp;: PDF, Word, Excel, texte, images, ZIP. Plusieurs documents&nbsp;→ à regrouper dans une archive <span class="field">.zip</span>. C'est en général le devis fournisseur.</span>
+        </li>
+        <li>
+          <span class="fname">Ligne budgétaire</span>
+          <span class="fdesc">Imputation de la dépense.</span>
+        </li>
+        <li>
+          <span class="fname">Gestionnaire habituelle</span>
+          <span class="fdesc">Indication du demandeur. <strong>Le ticket arrive à toute l'équipe</strong>, l'administratrice répartit ensuite.</span>
+        </li>
+        <li>
+          <span><span class="fname">Nature de la dépense</span><br><span class="req">Obligatoire</span></span>
+          <span class="fdesc"><span class="field">Fonctionnement</span> ou <span class="field">Équipement</span> (montant &gt; 3000&nbsp;€ <em>et</em> durée de vie &gt; 1&nbsp;an).</span>
+        </li>
+        <li>
+          <span><span class="fname">Code NACRE</span><br><span class="req">Obligatoire</span></span>
+          <span class="fdesc">Nomenclature des achats de la recherche. Le bouton <strong>« Chercher un code NACRE »</strong> ouvre une recherche par mot-clé (ex.&nbsp;: <span class="field">AC.01</span>). Le formulaire ne peut pas être envoyé tant que ce champ est vide.</span>
+        </li>
+        <li>
+          <span class="fname">Observateurs (adresses mail)</span>
+          <span class="fdesc">Facultatif. Adresses institutionnelles des personnes à tenir informées (chef d'équipe, futur utilisateur du matériel…). Un collègue du labo sans compte reçoit un compte automatiquement&nbsp;; une personne extérieure reçoit seulement les e-mails de notification.</span>
+        </li>
+      </ul>
+
+      <h3>À l'envoi</h3>
+      <p>Le formulaire crée un <strong>ticket</strong> automatiquement attribué au groupe <span class="field">Gestionnaires financiers</span>. La pièce jointe est rattachée au ticket. Une notification « Nouveau ticket » part vers toute l'équipe financière et l'administratrice.</p>
+    </section>
+
+    <section id="ticket">
+      <h2><span class="s-num">03</span>Le ticket, étape par étape</h2>
+      <p class="lede">Les tickets se consultent dans <em>Assistance&nbsp;› Tickets</em>. Chaque changement (prise en charge, suivi, résolution, clôture) déclenche une notification aux personnes concernées.</p>
+      <ol class="steps">
+        <li>
+          <span class="n">1</span>
+          <span>
+            <span class="h">Réception<span class="who">Toute l'équipe</span></span>
+            <span class="b"><p>Le ticket arrive au statut <span class="field">Nouveau</span>. Tout le monde le voit dans la file du groupe.</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">2</span>
+          <span>
+            <span class="h">Répartition<span class="who">Administratrice</span></span>
+            <span class="b"><p>L'administratrice attribue le ticket à un gestionnaire (elle seule a le droit d'attribuer).</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">3</span>
+          <span>
+            <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
+            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et les archive (voir <a href="#archivage">section&nbsp;5</a>).</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">4</span>
+          <span>
+            <span class="h">Traitement<span class="who">Gestionnaire</span></span>
+            <span class="b"><p>Passe la commande, saisit les informations utiles en <strong>suivi</strong>. Suivi <em>public</em> = visible par le demandeur&nbsp;; suivi <em>privé</em> = interne à l'équipe. Statut <span class="field">En attente</span> si la demande est bloquée (pièce manquante, question au demandeur…).</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">5</span>
+          <span>
+            <span class="h">Résolution<span class="who">Gestionnaire</span></span>
+            <span class="b"><p>Une fois la commande passée, le gestionnaire passe le ticket à <span class="field">Résolu</span> avec une solution décrivant ce qui a été fait (n° de bon de commande, fournisseur…). Le demandeur est notifié.</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">6</span>
+          <span>
+            <span class="h">Clôture<span class="who">Gestionnaire · auto</span></span>
+            <span class="b"><p>Le ticket passe à <span class="field">Clos</span>. Les tickets restés ouverts trop longtemps déclenchent des relances automatiques vers l'équipe et l'administratrice.</p></span>
+          </span>
+        </li>
+      </ol>
+      <div class="note-block">
+        Un gestionnaire ne voit que les tickets de son groupe et ceux qu'il a pris en charge — pas l'ensemble des tickets. L'administratrice voit tout.
+      </div>
+    </section>
+
+    <section id="droits">
+      <h2><span class="s-num">04</span>Qui peut faire quoi</h2>
+      <p class="lede">Deux profils, une règle simple&nbsp;: l'administratrice répartit, le gestionnaire traite.</p>
+      <div class="table-wrap">
+        <table>
+          <caption>Droits sur les tickets</caption>
+          <thead>
+            <tr>
+              <th scope="col">Action</th>
+              <th scope="col">Administratrice financière</th>
+              <th scope="col">Gestionnaire financier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Voir les tickets</th>
+              <td>Tous</td>
+              <td>Ceux du groupe + ceux pris en charge</td>
+            </tr>
+            <tr>
+              <th scope="row">Attribuer un ticket à quelqu'un</th>
+              <td class="y"><span class="mark">✓</span>Oui</td>
+              <td class="n"><span class="mark">—</span>Non (peut se mettre « en charge » soi-même)</td>
+            </tr>
+            <tr>
+              <th scope="row">Mettre à jour, ajouter des suivis</th>
+              <td class="y"><span class="mark">✓</span>Oui, y compris suivis privés</td>
+              <td class="y"><span class="mark">✓</span>Oui, suivis publics</td>
+            </tr>
+            <tr>
+              <th scope="row">Créer / supprimer un ticket</th>
+              <td class="y"><span class="mark">✓</span>Oui</td>
+              <td class="n"><span class="mark">—</span>Non</td>
+            </tr>
+            <tr>
+              <th scope="row">Télécharger les pièces jointes</th>
+              <td class="y"><span class="mark">✓</span>Oui</td>
+              <td class="y"><span class="mark">✓</span>Oui (droit lié à la visibilité du ticket)</td>
+            </tr>
+            <tr>
+              <th scope="row">Gérer la liste des codes NACRE</th>
+              <td class="y"><span class="mark">✓</span>Oui — menu <em>Outils&nbsp;› NACRES</em></td>
+              <td class="n"><span class="mark">—</span>Non</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="archivage">
+      <h2><span class="s-num">05</span>Pièces jointes et archivage</h2>
+      <p class="lede">Le point le plus important de ce guide.</p>
+
+      <div class="callout">
+        <h3><span class="tag">Règle</span>Le ticket n'est pas un espace de sauvegarde</h3>
+        <p>Les documents déposés dans un formulaire ou un ticket servent <strong>au traitement de la demande</strong>, pas à l'archivage. Ils peuvent disparaître&nbsp;: purge d'anciens tickets, incident serveur, dépassement du quota disque (surveillé, alerte à&nbsp;85&nbsp;%). Une pièce jointe supprimée n'est <strong>pas récupérable</strong>.</p>
+        <p>Les documents ne sont pas non plus joints aux e-mails de notification&nbsp;: il faut ouvrir le ticket dans GLPI pour les télécharger.</p>
+        <p class="rule-line">À chaque ticket traité&nbsp;: le gestionnaire <strong>télécharge la ou les pièces jointes</strong> (devis, bon de commande, facture) et les <strong>dépose sur l'espace de sauvegarde dédié de l'équipe financière</strong> <span class="field">[emplacement à préciser]</span>, avant de passer le ticket à <span class="field">Résolu</span>.</p>
+      </div>
+
+      <p>Le ticket reste la <strong>trace du circuit</strong> (qui a demandé quoi, quand, qui a traité). L'archive de référence des pièces comptables, elle, vit sur l'espace de sauvegarde de l'équipe — pas dans GLPI.</p>
+    </section>
+
+    <section id="nacre">
+      <h2><span class="s-num">06</span>Codes NACRE</h2>
+      <p class="lede">La nomenclature NACRE classe les achats de la recherche et de l'enseignement supérieur. Chaque demande doit en porter un.</p>
+      <ul>
+        <li>Sur le formulaire, le bouton <strong>« Chercher un code NACRE »</strong> à côté du champ ouvre une recherche par code, libellé ou mot-clé.</li>
+        <li>La liste des codes est mise à jour par l'<strong>administratrice financière</strong> depuis <em>Outils&nbsp;› NACRES</em> (import d'un classeur Excel, sauvegarde et restauration des versions précédentes).</li>
+        <li>Le code choisi est enregistré sur le ticket dans le champ <span class="field">Code NACRE</span>.</li>
+      </ul>
+    </section>
+
+    <section id="aide">
+      <h2><span class="s-num">07</span>Un problème&nbsp;?</h2>
+      <ul>
+        <li><strong>Connexion impossible, compte non reconnu</strong>&nbsp;: vérifier que la connexion se fait bien via <strong>CAS</strong> avec les identifiants Paris-Saclay.</li>
+        <li><strong>Ticket non reçu, notifications manquantes</strong>&nbsp;: le compte n'est probablement pas rattaché au groupe <span class="field">Gestionnaires financiers</span>.</li>
+        <li><strong>Autre question ou anomalie</strong>&nbsp;: contacter <span class="field">[contact support à préciser]</span>.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <div class="todo">
+        <strong>À compléter avant diffusion&nbsp;:</strong> l'emplacement exact de l'espace de sauvegarde de l'équipe, le contact support, et — si besoin — le nom des gestionnaires et leur périmètre.
+      </div>
+      Guide interne LPS — à mettre à jour si le formulaire ou le circuit évolue.
+    </footer>
+  </main>
+</div>
