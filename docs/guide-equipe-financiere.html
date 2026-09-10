@@ -465,7 +465,7 @@
       <ul class="fields">
         <li>
           <span><span class="fname">Équipe</span><br><span class="req">Obligatoire</span></span>
-          <span class="fdesc">Équipe de recherche du demandeur, à choisir dans la liste (<span class="field">CHIMIE</span>, <span class="field">CRYO</span>, <span class="field">MECA</span>, <span class="field">RMN</span>, <span class="field">THEO</span>…).</span>
+          <span class="fdesc">Équipe de recherche du demandeur, à choisir dans la liste (<span class="field">CHIMIE</span>, <span class="field">CRYO</span>, <span class="field">MECA</span>, <span class="field">RMN</span>, <span class="field">THEO</span>…). C'est elle qui indique quel gestionnaire suit habituellement la demande.</span>
         </li>
         <li>
           <span class="fname">Objet de l'achat</span>
@@ -481,7 +481,7 @@
         </li>
         <li>
           <span class="fname">Gestionnaire habituelle</span>
-          <span class="fdesc">Indication du demandeur. <strong>Le ticket arrive à toute l'équipe</strong>, l'administratrice répartit ensuite.</span>
+          <span class="fdesc">Indication facultative du demandeur. Le ticket arrive à <strong>toute l'équipe financière</strong>&nbsp;; le gestionnaire qui suit l'équipe concernée s'en charge (voir <a href="#ticket">section&nbsp;3</a>).</span>
         </li>
         <li>
           <span><span class="fname">Nature de la dépense</span><br><span class="req">Obligatoire</span></span>
@@ -515,40 +515,34 @@
         <li>
           <span class="n">2</span>
           <span>
-            <span class="h">Répartition<span class="who">Administratrice</span></span>
-            <span class="b"><p>L'administratrice attribue le ticket à un gestionnaire (elle seule peut attribuer). En cas d'absence ou de rééquilibrage de la charge, elle peut <strong>réattribuer</strong> un ticket déjà pris en charge à un autre gestionnaire.</p></span>
+            <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
+            <span class="b"><p>Chaque gestionnaire suit plusieurs équipes de recherche&nbsp;; il <strong>s'attribue lui-même</strong> les tickets des équipes dont il a la charge et passe le statut à <span class="field">En cours</span>. L'<strong>administratrice</strong> peut aussi répartir ou réattribuer un ticket selon les disponibilités et la charge de chacun (elle seule peut attribuer à quelqu'un d'autre).</p>
+            <p>Le gestionnaire ouvre le ticket, <strong>télécharge les pièces jointes du demandeur</strong> et les <strong>enregistre sur les espaces de l'équipe</strong> — GLPI n'est pas un espace de stockage (<a href="#archivage">section&nbsp;4</a>).</p></span>
           </span>
         </li>
         <li>
           <span class="n">3</span>
-          <span>
-            <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
-            <span class="b"><p>Le gestionnaire se met « en charge » et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge les pièces jointes du demandeur</strong> et les <strong>enregistre sur les espaces de l'équipe</strong> — GLPI n'est pas un espace de stockage (<a href="#archivage">section&nbsp;4</a>).</p></span>
-          </span>
-        </li>
-        <li>
-          <span class="n">4</span>
           <span>
             <span class="h">Traitement<span class="who">Gestionnaire</span></span>
             <span class="b"><p>Passe la commande, note les informations utiles en <strong>suivi</strong>. Suivi <em>public</em> = visible par le demandeur&nbsp;; suivi <em>privé</em> = interne à l'équipe. Statut <span class="field">En attente</span> si la demande est bloquée (pièce manquante, question au demandeur…).</p></span>
           </span>
         </li>
         <li>
-          <span class="n">5</span>
+          <span class="n">4</span>
           <span>
             <span class="h">Résolution<span class="who">Gestionnaire</span></span>
             <span class="b"><p>Une fois la commande passée, le gestionnaire passe le ticket à <span class="field">Résolu</span> avec une solution décrivant ce qui a été fait (n° de bon de commande, fournisseur…). Le demandeur est notifié.</p></span>
           </span>
         </li>
         <li>
-          <span class="n">6</span>
+          <span class="n">5</span>
           <span>
             <span class="h">Compléments éventuels<span class="who">Demandeur</span></span>
             <span class="b"><p>Tant que le ticket n'est pas clos, le demandeur peut ajouter un suivi (devis corrigé, précision, relance) <strong>depuis le lien reçu par e-mail</strong>. Le ticket repasse alors côté équipe pour être repris.</p></span>
           </span>
         </li>
         <li>
-          <span class="n">7</span>
+          <span class="n">6</span>
           <span>
             <span class="h">Clôture<span class="who">Auto · équipe</span></span>
             <span class="b"><p>Un ticket <span class="field">Résolu</span> passe automatiquement à <span class="field">Clos</span> après un délai sans réaction du demandeur. Un gestionnaire ou l'administratrice peut aussi le clore manuellement si tout est réglé. Un ticket <strong>clos ne se modifie plus</strong> — une nouvelle demande passe par un nouveau formulaire.</p></span>
