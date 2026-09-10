@@ -101,12 +101,30 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
  */
 function plugin_nacresearch_register_rights(): void
 {
-    \ProfileRight::addProfileRights([
+    $pluginRights = [
         NacresearchProfile::RIGHT_NACRE,
         NacresearchProfile::RIGHT_GUIDE,
-    ]);
+    ];
 
+    // Insertion gardée : n'ajoute la clé qu'aux profils qui ne l'ont pas encore.
+    // (ProfileRight::addProfileRights fait un INSERT sec qui casse sur un droit
+    // déjà présent — ce qui arrive pour RIGHT_NACRE après une première install.)
     $profile = new \Profile();
+    foreach (array_keys($profile->find()) as $profileId) {
+        $profileId = (int) $profileId;
+        $current = \ProfileRight::getProfileRights($profileId);
+        $missing = [];
+        foreach ($pluginRights as $right) {
+            if (!array_key_exists($right, $current)) {
+                $missing[$right] = 0;
+            }
+        }
+        if ($missing !== []) {
+            \ProfileRight::updateProfileRights($profileId, $missing);
+        }
+    }
+
+    // Accès au guide en lecture pour les deux profils financiers.
     foreach (['Gestionnaire financier', 'Administratrice financière'] as $name) {
         foreach (array_keys($profile->find(['name' => $name])) as $profileId) {
             \ProfileRight::updateProfileRights((int) $profileId, [
