@@ -14,7 +14,7 @@ require_once __DIR__ . '/inc/Profile.php';
 require_once __DIR__ . '/inc/Menu.php';
 require_once __DIR__ . '/inc/GuideMenu.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.3.1');
+define('PLUGIN_NACRESEARCH_VERSION', '1.3.2');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 

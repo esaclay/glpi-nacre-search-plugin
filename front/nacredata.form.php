@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
+require_once dirname(__DIR__) . '/inc/Profile.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
+use GlpiPlugin\Nacresearch\Profile;
 
-// Autoriser UNIQUEMENT: Super Admin OU profil "Administratrice financière"
-$user = new User();
-$user->getFromDB(Session::getLoginUserID());
-if ($user->getID() > 0) {
-    $profile = new Profile();
-    $profile->getFromDB($user->fields['profiles_id']);
-    $isAuthorized = ($profile->fields['name'] === 'Administratrice financière')
-        || Session::haveRight('config', UPDATE);
-    if (!$isAuthorized) {
-        Html::displayNotFoundError();
-        exit;
-    }
+// Même contrôle que front/config.php : droit d'import NACRES ou config UPDATE.
+if (!Session::haveRight(Profile::RIGHT_NACRE, UPDATE) && !Session::haveRight('config', UPDATE)) {
+    Html::displayNotFoundError();
+    exit;
 }
 
-Session::checkCSRF($_POST);
+// Pas de Session::checkCSRF() ici : sur GLPI 11 le noyau (CheckCsrfListener) valide
+// déjà le jeton pour toute requête POST non-AJAX et le consomme (jeton à usage
+// unique). Un second appel échouerait toujours → « L'action que vous avez
+// réalisée n'est pas autorisée. » Le plugin déclare csrf_compliant = true.
 
 try {
     $action = (string) ($_POST['action'] ?? '');
