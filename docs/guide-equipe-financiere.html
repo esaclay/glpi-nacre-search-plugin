@@ -305,42 +305,6 @@
     color: var(--ink);
   }
 
-  /* ---- Rights table ---- */
-  .table-wrap { overflow-x: auto; margin: 1.4rem 0; }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 32rem;
-    font-size: var(--step--1);
-  }
-  caption {
-    text-align: left;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--ink-soft);
-    padding-bottom: 0.7rem;
-  }
-  th, td {
-    text-align: left;
-    padding: 0.7rem 0.9rem;
-    border-bottom: 1px solid var(--rule);
-    vertical-align: top;
-  }
-  thead th {
-    font-weight: 600;
-    font-size: 0.82rem;
-    border-bottom: 2px solid var(--rule-strong);
-  }
-  tbody th {
-    font-weight: 500;
-    color: var(--ink);
-  }
-  td.y { color: var(--ok); font-weight: 500; }
-  td.n { color: var(--ink-soft); }
-  td .mark { font-family: var(--font-mono); margin-right: 0.35rem; }
-
   /* ---- Field list ---- */
   .fields { list-style: none; margin: 1.3rem 0; padding: 0; }
   .fields li {
@@ -435,10 +399,8 @@
     section { margin-top: 1.6rem; }
     h1 { font-size: var(--step-3); }
     .standfirst { font-size: var(--step-1); }
-    h2, h3, .callout h3, caption { break-after: avoid; }
-    .callout, .steps li, .fields li, .note-block, .accesskey,
-    table, tr, .toc { break-inside: avoid; }
-    thead { display: table-header-group; }
+    h2, h3, .callout h3 { break-after: avoid; }
+    .callout, .steps li, .fields li, .note-block, .accesskey, .toc { break-inside: avoid; }
     a { color: var(--accent-ink); text-decoration: none; }
     .steps li, .fields li { padding-top: 0.5rem; padding-bottom: 0.5rem; }
     footer { margin-top: 2rem; }
@@ -452,10 +414,9 @@
       <li data-num="1"><a href="#acces">Accès et connexion</a></li>
       <li data-num="2"><a href="#formulaire">Le formulaire de demande</a></li>
       <li data-num="3"><a href="#ticket">Le ticket, étape par étape</a></li>
-      <li data-num="4"><a href="#droits">Qui peut faire quoi</a></li>
-      <li data-num="5"><a href="#archivage">Pièces jointes et archivage</a></li>
-      <li data-num="6"><a href="#nacre">Codes NACRE</a></li>
-      <li data-num="7"><a href="#aide">Un problème&nbsp;?</a></li>
+      <li data-num="4"><a href="#archivage">Pièces jointes et archivage</a></li>
+      <li data-num="5"><a href="#nacre">Codes NACRE</a></li>
+      <li data-num="6"><a href="#aide">Un problème&nbsp;?</a></li>
     </ol>
   </nav>
 
@@ -477,7 +438,7 @@
       <ul>
         <li><strong>Se connecter&nbsp;:</strong> ouvrir <a href="https://commandes.lps.u-psud.fr">commandes.lps.u-psud.fr</a> et cliquer sur <strong>Connexion CAS</strong>. Un compte est créé automatiquement à la première connexion.</li>
         <li><strong>Demandeurs</strong> (tout le labo)&nbsp;: interface simplifiée. Ils voient le catalogue de services, déposent une demande, et suivent leurs propres tickets.</li>
-        <li><strong>Gestionnaire financier</strong> et <strong>Administratrice financière</strong>&nbsp;: interface complète (menu <em>Assistance&nbsp;› Tickets</em>). Détail des droits en <a href="#droits">section&nbsp;4</a>.</li>
+        <li><strong>Gestionnaire financier</strong> et <strong>Administratrice financière</strong>&nbsp;: interface complète (menu <em>Assistance&nbsp;› Tickets</em>).</li>
       </ul>
       <div class="note-block">
         Le rattachement à un groupe métier reste manuel&nbsp;: un nouveau compte financier doit être ajouté au groupe <span class="field">Gestionnaires financiers</span> par un administrateur pour recevoir les tickets et les notifications.
@@ -550,7 +511,7 @@
           <span class="n">3</span>
           <span>
             <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
-            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et en conserve une copie (voir <a href="#archivage">section&nbsp;5</a>).</p></span>
+            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et en conserve une copie (voir <a href="#archivage">section&nbsp;4</a>).</p></span>
           </span>
         </li>
         <li>
@@ -580,57 +541,8 @@
       </div>
     </section>
 
-    <section id="droits">
-      <h2><span class="s-num">04</span>Qui peut faire quoi</h2>
-      <p class="lede">Deux profils, une règle simple&nbsp;: l'administratrice répartit, le gestionnaire traite.</p>
-      <div class="table-wrap">
-        <table>
-          <caption>Droits sur les tickets</caption>
-          <thead>
-            <tr>
-              <th scope="col">Action</th>
-              <th scope="col">Administratrice financière</th>
-              <th scope="col">Gestionnaire financier</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Voir les tickets</th>
-              <td>Tous</td>
-              <td>Ceux du groupe + ceux pris en charge</td>
-            </tr>
-            <tr>
-              <th scope="row">Attribuer un ticket à quelqu'un</th>
-              <td class="y"><span class="mark">✓</span>Oui</td>
-              <td class="n"><span class="mark">—</span>Non (peut se mettre « en charge » soi-même)</td>
-            </tr>
-            <tr>
-              <th scope="row">Mettre à jour, ajouter des suivis</th>
-              <td class="y"><span class="mark">✓</span>Oui, y compris suivis privés</td>
-              <td class="y"><span class="mark">✓</span>Oui, suivis publics</td>
-            </tr>
-            <tr>
-              <th scope="row">Créer / supprimer un ticket</th>
-              <td class="y"><span class="mark">✓</span>Oui</td>
-              <td class="n"><span class="mark">—</span>Non</td>
-            </tr>
-            <tr>
-              <th scope="row">Télécharger les pièces jointes</th>
-              <td class="y"><span class="mark">✓</span>Oui</td>
-              <td class="y"><span class="mark">✓</span>Oui (droit lié à la visibilité du ticket)</td>
-            </tr>
-            <tr>
-              <th scope="row">Gérer la liste des codes NACRE</th>
-              <td class="y"><span class="mark">✓</span>Oui — menu <em>Outils&nbsp;› NACRES</em></td>
-              <td class="n"><span class="mark">—</span>Non</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <section id="archivage">
-      <h2><span class="s-num">05</span>Pièces jointes et archivage</h2>
+      <h2><span class="s-num">04</span>Pièces jointes et archivage</h2>
       <p class="lede">Le point le plus important de ce guide.</p>
 
       <div class="callout">
@@ -644,7 +556,7 @@
     </section>
 
     <section id="nacre">
-      <h2><span class="s-num">06</span>Codes NACRE</h2>
+      <h2><span class="s-num">05</span>Codes NACRE</h2>
       <p class="lede">La nomenclature NACRE classe les achats de la recherche et de l'enseignement supérieur. Chaque demande doit en porter un.</p>
       <ul>
         <li>Sur le formulaire, le bouton <strong>« Chercher un code NACRE »</strong> à côté du champ ouvre une recherche par code, libellé ou mot-clé.</li>
@@ -654,7 +566,7 @@
     </section>
 
     <section id="aide">
-      <h2><span class="s-num">07</span>Un problème&nbsp;?</h2>
+      <h2><span class="s-num">06</span>Un problème&nbsp;?</h2>
       <ul>
         <li><strong>Connexion impossible, compte non reconnu</strong>&nbsp;: vérifier que la connexion se fait bien via <strong>CAS</strong> avec les identifiants Paris-Saclay.</li>
         <li><strong>Ticket non reçu, notifications manquantes</strong>&nbsp;: le compte n'est probablement pas rattaché au groupe <span class="field">Gestionnaires financiers</span>.</li>
