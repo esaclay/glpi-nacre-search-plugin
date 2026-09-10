@@ -14,7 +14,7 @@ require_once __DIR__ . '/inc/Profile.php';
 require_once __DIR__ . '/inc/Menu.php';
 require_once __DIR__ . '/inc/GuideMenu.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.3.0');
+define('PLUGIN_NACRESEARCH_VERSION', '1.3.1');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
@@ -24,18 +24,6 @@ function plugin_init_nacresearch(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
 
-    $PLUGIN_HOOKS['rights_information']['nacresearch'] = [
-        [
-            'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
-            'label'    => 'Gestion des données NACRES',
-            'field'    => \GlpiPlugin\Nacresearch\Profile::RIGHT_NACRE,
-        ],
-        [
-            'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
-            'label'    => 'Guide équipe financière',
-            'field'    => \GlpiPlugin\Nacresearch\Profile::RIGHT_GUIDE,
-        ],
-    ];
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();

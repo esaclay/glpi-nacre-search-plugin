@@ -127,7 +127,7 @@ Le gestionnaire financier ne peut traiter que les tickets qui lui sont affectés
 
 ## Import Excel administrateur
 
-Le droit de profil **plugin_nacresearch_data** (Gestion des données NACRES) est désactivé par défaut. Accordez-le explicitement en mise à jour à l’administrateur chargé de l’import. Le script `bootstrap_lps_ticket_workflow.php` l’accorde au profil **Administratrice financière**.
+Le droit de profil **plugin_nacresearch_data** (Gestion des données NACRES) est désactivé par défaut et n’a pas d’onglet dans **Administration > Profils**. Il s’accorde par script : `bootstrap_lps_ticket_workflow.php` le donne en écriture au profil **Administratrice financière**. Ponctuellement, via `bin/console` ou en SQL sur `glpi_profilerights`. Le droit lecture **plugin_nacresearch_guide** (accès au guide) est accordé automatiquement à l’installation aux profils **Gestionnaire financier** et **Administratrice financière**.
 
 Avec ce droit, ouvrez **Configuration > Plugins > NACRE Search > Configuration**, puis sélectionnez le classeur `.xlsx`. Le fichier est limité à 10 Mo et doit contenir une seule feuille nommée **N** :
 
