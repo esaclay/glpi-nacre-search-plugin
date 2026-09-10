@@ -149,7 +149,7 @@ Les changements d’appartenance et de profil restent volontaires et manuels afi
 
 ## Guide de l’équipe financière
 
-Le guide d’utilisation de l’instance (`docs/guide-equipe-financiere.html`) est servi dans GLPI à l’entrée **Outils > Guide équipe financière**. L’accès est gardé par le droit lecture **plugin_nacresearch_guide**, accordé à l’installation et par `bootstrap_lps_ticket_workflow.php` aux profils **Gestionnaire financier** et **Administratrice financière**. Toute modification du HTML impose de régénérer `docs/guide-equipe-financiere.pdf` (Chrome headless `--print-to-pdf`).
+Le guide d’utilisation de l’instance (`docs/guide-equipe-financiere.html`) est servi dans GLPI à l’entrée **Outils > Guide équipe financière**, et **uniquement là** (pas d’export PDF, pas de copie hébergée ailleurs). L’accès est gardé par le droit lecture **plugin_nacresearch_guide**, accordé à l’installation et par `bootstrap_lps_ticket_workflow.php` aux profils **Gestionnaire financier** et **Administratrice financière**.
 
 ## Utilisation dans GLPI
 
