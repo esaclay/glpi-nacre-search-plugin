@@ -134,6 +134,15 @@ systemctl restart apache2
 
 Chemin GLPI de prod : `/var/www/commandes`. Le vidage du cache + restart Apache sont indispensables après un `install.sh` (sinon PHP/JS/CSS restent en cache).
 
+**Si `PLUGIN_NACRESEARCH_VERSION` a changé** : GLPI détecte le changement de version et **désactive le plugin** (warning `Plugin ... version changed` dans les logs) tant que l'update n'est pas lancé. Après `install.sh` :
+
+```bash
+runuser -u www-data -- php /var/www/commandes/bin/console plugin:install --force nacresearch
+runuser -u www-data -- php /var/www/commandes/bin/console plugin:activate nacresearch
+```
+
+`plugin:install --force -vvv` affiche l'erreur si l'install échoue (elle est sinon avalée par le `try/catch` de `plugin_nacresearch_install()` → icône « à mettre à jour » bloquée). Une simple modif d'un fichier runtime (JS/CSS/`docs/*.html`) **sans** bump de version ne nécessite ni `plugin:install` ni `plugin:activate`.
+
 Il n'y a pas de suite de tests automatisés dans ce dépôt — la vérification se fait manuellement dans une instance GLPI (créer un ticket, tester le widget sur un formulaire, tester import/backup/restore).
 
 ## Conventions
