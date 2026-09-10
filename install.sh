@@ -26,7 +26,7 @@ mkdir -p "${TARGET_DIR}"
 
 # Copy all plugin files - use find + cp for reliability
 echo "Copie des fichiers du plugin..."
-find "${REPO_ROOT}" -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name 'node_modules' ! -name 'vendor' -exec cp -a {} "${TARGET_DIR}/" \;
+find "${REPO_ROOT}" -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.github' ! -name 'node_modules' ! -name 'vendor' ! -name 'contrib' -exec cp -a {} "${TARGET_DIR}/" \;
 
 # Verify key files were copied
 if [ ! -f "${TARGET_DIR}/setup.php" ]; then
@@ -44,6 +44,8 @@ fi
 [ -d "${TARGET_DIR}/.github" ] && rm -rf "${TARGET_DIR}/.github"
 [ -d "${TARGET_DIR}/node_modules" ] && rm -rf "${TARGET_DIR}/node_modules"
 [ -d "${TARGET_DIR}/vendor" ] && rm -rf "${TARGET_DIR}/vendor"
+# contrib/ = outillage hors plugin (rebranding), non copié ; nettoie un ancien déploiement
+[ -d "${TARGET_DIR}/contrib" ] && rm -rf "${TARGET_DIR}/contrib"
 
 # Set permissions
 chmod +x "${TARGET_DIR}/install.sh" "${TARGET_DIR}/bin/configure.php" "${TARGET_DIR}/bin/update_nacre_data.php" 2>/dev/null || true
