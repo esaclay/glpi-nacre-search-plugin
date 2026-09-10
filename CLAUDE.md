@@ -18,12 +18,14 @@ setup.php                          Point d'entrée : hooks, install/uninstall
 hook.php                           Fonctions runtime (config, droits, meta tags header, hook item_add Ticket)
 inc/
   NacreData.php                    Cœur métier (~740 lignes) : config, import Excel, backups, recherche
-  Profile.php                      Droits utilisateur (RIGHT_NACRE) — tab UI désactivé volontairement
-  Menu.php                         Entrée du menu latéral « Outils » (hook menu_toradd), gardée par RIGHT_NACRE
+  Profile.php                      Droits utilisateur (RIGHT_NACRE, RIGHT_GUIDE) — tab UI désactivé volontairement
+  Menu.php                         Entrée « Outils › NACRES » (hook menu_toradd), gardée par RIGHT_NACRE
+  GuideMenu.php                    Entrée « Outils › Guide équipe financière » (hook menu_toradd), gardée par RIGHT_GUIDE
   ObserverSync.php                 Hook item_add Ticket : résout/importe depuis LDAP les observateurs saisis en e-mail
 front/
   config.php                       Interface admin (import / backup / restore)
   nacredata.form.php               Handler des actions d'import/backup/restore
+  guide.php                        Sert docs/guide-equipe-financiere.html dans le chrome GLPI (iframe), gardé par RIGHT_GUIDE
 config/
   defaults.php                     Config par défaut (versionnée)
   local.php                        Surcharge locale (non versionnée, générée à l'install)
@@ -95,9 +97,11 @@ Prod (vérifié 2026-09-09, cf mémoires `glpi-ldap-cas-config` / `glpi-prod-top
 
 ## Droits et sécurité
 
-- Droit plugin : `plugin_nacresearch_data` (constante `Profile::RIGHT_NACRE`), READ/UPDATE, **désactivé par défaut** pour tous les profils sauf attribution explicite
+- Droit plugin : `plugin_nacresearch_data` (constante `Profile::RIGHT_NACRE`), READ/UPDATE, **désactivé par défaut** pour tous les profils sauf attribution explicite. Une **seule** clé pour ce droit — pas d'ancienne `plugin_nacresearch_data_management` (supprimée en 1.3.0, elle n'était jamais lue au runtime).
+- Droit plugin : `plugin_nacresearch_guide` (constante `Profile::RIGHT_GUIDE`), **READ seul** — accès au guide d'utilisation. Les deux droits sont enregistrés à 0 sur tous les profils à l'installation (`plugin_nacresearch_register_rights()` → `ProfileRight::addProfileRights()`), qui accorde en plus `RIGHT_GUIDE` READ aux profils « Gestionnaire financier » et « Administratrice financière ». `RIGHT_NACRE` UPDATE pour l'administratrice reste accordé par le bootstrap ou manuellement. `RIGHT_GUIDE` est retiré à la désinstallation via `deleteProfileRights()`.
 - L'onglet de gestion des droits dans l'UI Profile est **désactivé intentionnellement** (`inc/Profile.php` → `getTabNameForItem()` retourne `''`) — les droits sont gérés via le système natif GLPI (Administration > Profils), pas via un tab custom
 - Accès à `front/config.php` : deux chemins complémentaires — (1) icône engrenage sur **Configuration > Plugins** via `Hooks::CONFIG_PAGE` (nécessite le droit natif `config`), (2) entrée **Outils > NACRES** via `menu_toradd` + `inc/Menu.php`, gardée par `RIGHT_NACRE` seul (pour les profils type « administratrice financière » sans droit `config`). La page elle-même autorise `RIGHT_NACRE` UPDATE ou `config` UPDATE.
+- Accès à `front/guide.php` : entrée **Outils > Guide équipe financière** via `menu_toradd` + `inc/GuideMenu.php`, gardée par `RIGHT_GUIDE` READ (ou `config` UPDATE). La page rend `Html::header()` + une `<iframe>` vers `guide.php?raw=1`, qui applique la **même** vérification de droit avant de servir `docs/guide-equipe-financiere.html` (jamais d'accès direct au fichier sans contrôle).
 - Import Excel : validations anti zip-bomb, anti-injection de formules, CSRF, taille max 10 Mo upload / 50 Mo décompressé, max 100 entrées ZIP
 - Backups : les 5 dernières versions sont conservées dans `config/nacre-backups/` (protégé par `.htaccess`)
 
@@ -147,4 +151,6 @@ Le plugin a traversé une phase de simplification : une approche par contrôleur
 
 **1.2.0** : ajout du sous-système serveur `ObserverSync` (hook `item_add` sur Ticket) — voir « Observateurs depuis un formulaire de catalogue » ci-dessus. Corrige au passage deux `use` non-composés dans `hook.php` (`use Session;` / `use Throwable;`) qui polluaient `php-errors.log` à chaque chargement.
 
-`docs/guide-equipe-financiere.html` : guide d'utilisation de l'instance de prod pour les profils financiers (accès, formulaire, cycle de vie des tickets, droits, **règle d'archivage des pièces jointes**). Contient des placeholders `[...]` (emplacement de sauvegarde, contact support) à remplir avant diffusion. Un artifact privé non partagé existe côté compte utilisateur (contenu confidentiel) — ne pas le rendre public.
+**1.3.0** : le guide de l'équipe financière est servi directement dans GLPI (`front/guide.php`, entrée **Outils > Guide équipe financière**), réservé aux gestionnaires + administratrice via le nouveau droit lecture `plugin_nacresearch_guide`. Les deux placeholders du guide (emplacement de sauvegarde, contact support) ont été retirés à la demande du labo — l'archivage des pièces reste mentionné comme principe, sans prescrire de procédure. Corrige aussi une incohérence historique : le droit d'import existait sous deux clés (`plugin_nacresearch_data` lu au runtime vs `plugin_nacresearch_data_management` seedé/bootstrapé) ; la seconde est supprimée, tout est unifié sur `Profile::RIGHT_NACRE`.
+
+`docs/guide-equipe-financiere.html` : guide d'utilisation de l'instance de prod pour les profils financiers (accès, formulaire, cycle de vie des tickets, droits, **règle d'archivage des pièces jointes**). Fichier fragment (pas de `<!doctype>`/`<head>`) : le `<title>` en tête + `<style>` inline, rendu autonome par un wrapper minimal. Consommé par `front/guide.php?raw=1` (dans GLPI) et pour l'export PDF (`guide-equipe-financiere.pdf`, Chrome headless `--print-to-pdf` — **à régénérer après toute modif du HTML**). Un artifact privé non partagé existe côté compte utilisateur (contenu confidentiel) — ne pas le rendre public.

@@ -15,6 +15,9 @@ class Profile extends CommonDBTM
     // Clé du droit enregistrée dans la table glpi_profilerights de GLPI
     public const RIGHT_NACRE = 'plugin_nacresearch_data';
 
+    // Droit lecture seule : accès au guide d'utilisation de l'équipe financière
+    public const RIGHT_GUIDE = 'plugin_nacresearch_guide';
+
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         // Onglet NACRES désactivé - droits gérés par nom de profil simple
@@ -77,6 +80,14 @@ class Profile extends CommonDBTM
                 'rights'   => [
                     READ   => __('Read'),
                     UPDATE => __('Update'),
+                ],
+            ],
+            [
+                'itemtype' => self::class,
+                'label'    => 'Guide équipe financière',
+                'field'    => self::RIGHT_GUIDE,
+                'rights'   => [
+                    READ => __('Read'),
                 ],
             ],
         ];

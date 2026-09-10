@@ -117,7 +117,7 @@ try {
     require_once $autoload;
     $kernel = new \Glpi\Kernel\Kernel();
     $kernel->boot();
-    require_once $pluginRoot . '/inc/NacreData.php';
+    require_once $pluginRoot . '/inc/Profile.php';
 
     foreach ([Entity::class, Group::class, Profile::class, ProfileRight::class, Ticket::class, ITILFollowup::class, \Glpi\Form\Form::class] as $class) {
         if (!class_exists($class)) {
@@ -146,6 +146,7 @@ try {
         Ticket::$rightname => UPDATE | Ticket::READGROUP | Ticket::READASSIGN | Ticket::OWN,
         ITILFollowup::$rightname => ITILFollowup::SEEPUBLIC | ITILFollowup::UPDATEMY
             | ITILFollowup::ADD_AS_TECHNICIAN,
+        \GlpiPlugin\Nacresearch\Profile::RIGHT_GUIDE => READ,
     ];
     $administratorRights = [
         Ticket::$rightname => UPDATE | Ticket::READALL | Ticket::ASSIGN | Ticket::OWN,
@@ -153,7 +154,8 @@ try {
             | ITILFollowup::UPDATEMY | ITILFollowup::UPDATEALL | ITILFollowup::ADD_AS_TECHNICIAN
             | ITILFollowup::ADD_AS_GROUP | ITILFollowup::ADDALLITEM,
         \Glpi\Form\Form::$rightname => CREATE | READ | UPDATE | PURGE,
-        \GlpiPlugin\Nacresearch\NacreData::RIGHT_DATA_MANAGEMENT => UPDATE,
+        \GlpiPlugin\Nacresearch\Profile::RIGHT_NACRE => UPDATE,
+        \GlpiPlugin\Nacresearch\Profile::RIGHT_GUIDE => READ,
     ];
     foreach ([FINANCE_MANAGER_PROFILE_NAME, FINANCE_ADMIN_PROFILE_NAME] as $profileName) {
         $profile = findOne(Profile::class, ['name' => $profileName], sprintf('le profil « %s »', $profileName));

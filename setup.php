@@ -7,14 +7,14 @@ if (!defined('GLPI_ROOT')) {
 }
 
 use Glpi\Plugin\Hooks;
-use GlpiPlugin\Nacresearch\NacreData;
 use GlpiPlugin\Nacresearch\Profile as NacresearchProfile;
 
 require_once __DIR__ . '/hook.php';
 require_once __DIR__ . '/inc/Profile.php';
 require_once __DIR__ . '/inc/Menu.php';
+require_once __DIR__ . '/inc/GuideMenu.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.2.0');
+define('PLUGIN_NACRESEARCH_VERSION', '1.3.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
@@ -29,7 +29,12 @@ function plugin_init_nacresearch(): void
             'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
             'label'    => 'Gestion des données NACRES',
             'field'    => \GlpiPlugin\Nacresearch\Profile::RIGHT_NACRE,
-        ]
+        ],
+        [
+            'itemtype' => 'GlpiPlugin\Nacresearch\Profile',
+            'label'    => 'Guide équipe financière',
+            'field'    => \GlpiPlugin\Nacresearch\Profile::RIGHT_GUIDE,
+        ],
     ];
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = 'public/js/nacre-search.js';
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = 'public/css/nacre-search.css';
@@ -46,10 +51,15 @@ function plugin_init_nacresearch(): void
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';
     }
 
-    // Entrée dans le menu latéral « Outils » : accessible avec le seul droit
-    // plugin RIGHT_NACRE, sans le droit natif `config` (page Configuration > Plugins).
+    // Entrées dans le menu latéral « Outils » :
+    //  - NACRES : gestion des données, gardée par RIGHT_NACRE ;
+    //  - Guide équipe financière : gardé par RIGHT_GUIDE (lecture).
+    // Aucune ne nécessite le droit natif `config`.
     $PLUGIN_HOOKS[Hooks::MENU_TOADD]['nacresearch'] = [
-        'tools' => 'GlpiPlugin\Nacresearch\Menu',
+        'tools' => [
+            'GlpiPlugin\Nacresearch\Menu',
+            'GlpiPlugin\Nacresearch\GuideMenu',
+        ],
     ];
 }
 
@@ -80,15 +90,27 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
     return plugin_nacresearch_configuration_ready($verbose);
 }
 
-function plugin_nacresearch_ensure_data_management_right(): void
+/**
+ * Enregistre les droits du plugin sur tous les profils (valeur 0 par défaut),
+ * puis accorde le droit « Guide équipe financière » en lecture aux profils
+ * financiers. Idempotent : peut être rejoué à chaque mise à jour du plugin.
+ *
+ * Le droit d'import (RIGHT_NACRE) reste désactivé par défaut ; il est accordé
+ * explicitement à l'administratrice par bin/bootstrap_lps_ticket_workflow.php
+ * ou via Administration > Profils.
+ */
+function plugin_nacresearch_register_rights(): void
 {
-    $profiles = new \Profile();
-    foreach (array_keys($profiles->find()) as $profileId) {
-        $profileId = (int) $profileId;
-        $rights = \ProfileRight::getProfileRights($profileId);
-        if (!array_key_exists(NacreData::RIGHT_DATA_MANAGEMENT, $rights)) {
-            \ProfileRight::updateProfileRights($profileId, [
-                NacreData::RIGHT_DATA_MANAGEMENT => 0,
+    \ProfileRight::addProfileRights([
+        NacresearchProfile::RIGHT_NACRE,
+        NacresearchProfile::RIGHT_GUIDE,
+    ]);
+
+    $profile = new \Profile();
+    foreach (['Gestionnaire financier', 'Administratrice financière'] as $name) {
+        foreach (array_keys($profile->find(['name' => $name])) as $profileId) {
+            \ProfileRight::updateProfileRights((int) $profileId, [
+                NacresearchProfile::RIGHT_GUIDE => READ,
             ]);
         }
     }
@@ -118,7 +140,7 @@ function plugin_nacresearch_install(): bool
 
         $migration->executeMigration();
 
-        plugin_nacresearch_ensure_data_management_right();
+        plugin_nacresearch_register_rights();
 
         $plugin_dir = __DIR__;
         $data_dir = $plugin_dir . '/public/data';
@@ -176,5 +198,9 @@ function plugin_nacresearch_uninstall(): bool
     if ($DB->tableExists('glpi_plugin_nacresearch_profiles')) {
         $DB->query("DROP TABLE `glpi_plugin_nacresearch_profiles`;");
     }
+    \ProfileRight::deleteProfileRights([
+        NacresearchProfile::RIGHT_NACRE,
+        NacresearchProfile::RIGHT_GUIDE,
+    ]);
     return true;
 }

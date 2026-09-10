@@ -385,15 +385,6 @@
     font-size: var(--step--1);
     color: var(--ink-soft);
   }
-  footer .todo {
-    background: var(--surface-sunk);
-    border: 1px dashed var(--rule-strong);
-    border-radius: 6px;
-    padding: 0.9rem 1.1rem;
-    margin-bottom: 1.2rem;
-  }
-  footer .todo strong { color: var(--ink); }
-
   @media (prefers-reduced-motion: no-preference) {
     html { scroll-behavior: smooth; }
   }
@@ -446,7 +437,7 @@
     .standfirst { font-size: var(--step-1); }
     h2, h3, .callout h3, caption { break-after: avoid; }
     .callout, .steps li, .fields li, .note-block, .accesskey,
-    table, tr, .toc, footer .todo { break-inside: avoid; }
+    table, tr, .toc { break-inside: avoid; }
     thead { display: table-header-group; }
     a { color: var(--accent-ink); text-decoration: none; }
     .steps li, .fields li { padding-top: 0.5rem; padding-bottom: 0.5rem; }
@@ -559,7 +550,7 @@
           <span class="n">3</span>
           <span>
             <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
-            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et les archive (voir <a href="#archivage">section&nbsp;5</a>).</p></span>
+            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et en conserve une copie (voir <a href="#archivage">section&nbsp;5</a>).</p></span>
           </span>
         </li>
         <li>
@@ -646,10 +637,10 @@
         <h3><span class="tag">Règle</span>Le ticket n'est pas un espace de sauvegarde</h3>
         <p>Les documents déposés dans un formulaire ou un ticket servent <strong>au traitement de la demande</strong>, pas à l'archivage. Ils peuvent disparaître&nbsp;: purge d'anciens tickets, incident serveur, dépassement du quota disque (surveillé, alerte à&nbsp;85&nbsp;%). Une pièce jointe supprimée n'est <strong>pas récupérable</strong>.</p>
         <p>Les documents ne sont pas non plus joints aux e-mails de notification&nbsp;: il faut ouvrir le ticket dans GLPI pour les télécharger.</p>
-        <p class="rule-line">À chaque ticket traité&nbsp;: le gestionnaire <strong>télécharge la ou les pièces jointes</strong> (devis, bon de commande, facture) et les <strong>dépose sur l'espace de sauvegarde dédié de l'équipe financière</strong> <span class="field">[emplacement à préciser]</span>, avant de passer le ticket à <span class="field">Résolu</span>.</p>
+        <p class="rule-line">À chaque ticket traité&nbsp;: le gestionnaire <strong>télécharge la ou les pièces jointes</strong> (devis, bon de commande, facture) et en <strong>conserve une copie</strong> selon les procédures d'archivage de l'équipe financière, avant de passer le ticket à <span class="field">Résolu</span>.</p>
       </div>
 
-      <p>Le ticket reste la <strong>trace du circuit</strong> (qui a demandé quoi, quand, qui a traité). L'archive de référence des pièces comptables, elle, vit sur l'espace de sauvegarde de l'équipe — pas dans GLPI.</p>
+      <p>Le ticket reste la <strong>trace du circuit</strong> (qui a demandé quoi, quand, qui a traité). L'archive de référence des pièces comptables, elle, vit hors de GLPI, dans l'archivage propre à l'équipe financière.</p>
     </section>
 
     <section id="nacre">
@@ -667,14 +658,10 @@
       <ul>
         <li><strong>Connexion impossible, compte non reconnu</strong>&nbsp;: vérifier que la connexion se fait bien via <strong>CAS</strong> avec les identifiants Paris-Saclay.</li>
         <li><strong>Ticket non reçu, notifications manquantes</strong>&nbsp;: le compte n'est probablement pas rattaché au groupe <span class="field">Gestionnaires financiers</span>.</li>
-        <li><strong>Autre question ou anomalie</strong>&nbsp;: contacter <span class="field">[contact support à préciser]</span>.</li>
       </ul>
     </section>
 
     <footer>
-      <div class="todo">
-        <strong>À compléter avant diffusion&nbsp;:</strong> l'emplacement exact de l'espace de sauvegarde de l'équipe, le contact support, et — si besoin — le nom des gestionnaires et leur périmètre.
-      </div>
       Guide interne LPS — à mettre à jour si le formulaire ou le circuit évolue.
     </footer>
   </main>

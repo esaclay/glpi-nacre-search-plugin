@@ -11,7 +11,6 @@ use ZipArchive;
 
 final class NacreData
 {
-    public const RIGHT_DATA_MANAGEMENT = 'plugin_nacresearch_data_management';
     private const MAX_UPLOAD_SIZE = 10485760;
     private const MAX_ZIP_FILES = 100;
     private const MAX_UNCOMPRESSED_SIZE = 52428800;
@@ -719,7 +718,7 @@ final class NacreData
         $config = [
             'plugin' => [
                 'name' => 'nacresearch',
-                'version' => '1.2.0',
+                'version' => '1.3.0',
             ],
             'ui' => [
                 'selector_hint' => 'nacre',

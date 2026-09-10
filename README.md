@@ -12,6 +12,7 @@ Plugin GLPI 11 pour intégrer une recherche de codes NACRE directement dans les 
 - installation automatisée avec `install.sh`
 - scripts CLI pour initialiser puis mettre à jour les données NACRE
 - import administrateur d’un classeur NACRES Excel avec sauvegardes restaurables
+- guide d’utilisation de l’instance servi dans GLPI (**Outils > Guide équipe financière**), réservé aux profils financiers
 
 ## Structure du plugin
 
@@ -126,7 +127,7 @@ Le gestionnaire financier ne peut traiter que les tickets qui lui sont affectés
 
 ## Import Excel administrateur
 
-Le droit de profil **plugin_nacresearch_data_management** (Gestion des données NACRES) est désactivé par défaut. Accordez-le explicitement en mise à jour à l’administrateur chargé de l’import. Le script `bootstrap_lps_ticket_workflow.php` l’accorde au profil **Administratrice financière**.
+Le droit de profil **plugin_nacresearch_data** (Gestion des données NACRES) est désactivé par défaut. Accordez-le explicitement en mise à jour à l’administrateur chargé de l’import. Le script `bootstrap_lps_ticket_workflow.php` l’accorde au profil **Administratrice financière**.
 
 Avec ce droit, ouvrez **Configuration > Plugins > NACRE Search > Configuration**, puis sélectionnez le classeur `.xlsx`. Le fichier est limité à 10 Mo et doit contenir une seule feuille nommée **N** :
 
@@ -145,6 +146,10 @@ Pour chaque personne, après sa première connexion CAS :
 3. pour les demandeurs, conservez le profil GLPI existant **Self-Service**.
 
 Les changements d’appartenance et de profil restent volontaires et manuels afin de ne pas interférer avec CAS.
+
+## Guide de l’équipe financière
+
+Le guide d’utilisation de l’instance (`docs/guide-equipe-financiere.html`) est servi dans GLPI à l’entrée **Outils > Guide équipe financière**. L’accès est gardé par le droit lecture **plugin_nacresearch_guide**, accordé à l’installation et par `bootstrap_lps_ticket_workflow.php` aux profils **Gestionnaire financier** et **Administratrice financière**. Toute modification du HTML impose de régénérer `docs/guide-equipe-financiere.pdf` (Chrome headless `--print-to-pdf`).
 
 ## Utilisation dans GLPI
 
