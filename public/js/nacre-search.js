@@ -245,35 +245,102 @@
         }
     }
 
+    // Niveau hiérarchique d'après la forme du code — utilisé en repli si le JSON
+    // n'expose pas encore le champ `level` (fenêtre entre déploiement du code et
+    // réécriture de nacre.json).
+    function codeLevel(record) {
+        if (record.level) {
+            return record.level;
+        }
+        var parts = String(record.code || '').split('.');
+        if (parts.length < 2) {
+            return parts[0].length === 1 ? 1 : 2;
+        }
+        return parts[1].length === 1 ? 3 : 4;
+    }
+
+    function isSelectable(record) {
+        if (typeof record.selectable === 'boolean') {
+            return record.selectable;
+        }
+        return codeLevel(record) === 4;
+    }
+
+    // Garde-fou : masquer les lignes « NE PLUS UTILISER » même si nacre.json
+    // n'a pas encore été reprocessé côté serveur.
+    function isDeprecated(record) {
+        return /ne plus utiliser/i.test(record.label || '');
+    }
+
+    // Une teinte stable par lettre de tête (famille NACRE), pour le liséré.
+    function familyColor(code) {
+        var letter = String(code || 'A').charAt(0).toUpperCase();
+        var offset = letter.charCodeAt(0) - 65;
+        if (offset < 0 || offset > 25) {
+            offset = 0;
+        }
+        return 'hsl(' + Math.round(offset * (360 / 26)) + ', 60%, 42%)';
+    }
+
     function renderResults(query) {
         var records = state.data || [];
         var normalizedTerms = normalize(query).split(/\s+/).filter(Boolean);
         var matches = records.filter(function (record) {
+            if (isDeprecated(record)) {
+                return false;
+            }
             var haystack = normalize(record.search || [record.code, record.label].join(' '));
             return normalizedTerms.every(function (term) {
                 return haystack.indexOf(term) !== -1;
             });
-        }).slice(0, state.resultLimit);
+        });
+
+        // Le plafond ne s'applique qu'aux codes : toutes les catégories
+        // correspondantes restent visibles pour garder le fil hiérarchique.
+        var shown = [];
+        var codeCount = 0;
+        var categoryCount = 0;
+        matches.forEach(function (record) {
+            if (isSelectable(record)) {
+                if (codeCount >= state.resultLimit) {
+                    return;
+                }
+                codeCount += 1;
+            } else {
+                categoryCount += 1;
+            }
+            shown.push(record);
+        });
 
         state.refs.results.innerHTML = '';
-        state.refs.empty.hidden = matches.length !== 0;
-        state.refs.status.textContent = matches.length
-            ? matches.length + ' résultat(s) affiché(s) sur ' + records.length + '.'
+        state.refs.empty.hidden = shown.length !== 0;
+        state.refs.status.textContent = shown.length
+            ? codeCount + ' code(s) · ' + categoryCount + ' catégorie(s) sur ' + records.length + '.'
             : '0 résultat affiché.';
 
-        matches.forEach(function (record) {
-            var button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'nacresearch-modal__result';
-            button.innerHTML = [
+        shown.forEach(function (record) {
+            var selectable = isSelectable(record);
+            var level = codeLevel(record);
+            var element = document.createElement(selectable ? 'button' : 'div');
+            element.className = 'nacresearch-modal__result nacresearch-modal__result--level-' + level
+                + (selectable ? '' : ' nacresearch-modal__result--category');
+            element.style.setProperty('--nacre-family', familyColor(record.code));
+            var meta = selectable
+                ? 'Section ' + escapeHtml(record.section || '-') + ' · Division ' + escapeHtml(record.division || '-')
+                : 'Catégorie · niveau ' + level;
+            element.innerHTML = [
                 '<span class="nacresearch-modal__result-code">' + escapeHtml(record.code) + '</span>',
-                '<span>' + escapeHtml(record.label) + '</span>',
-                '<span class="nacresearch-modal__result-meta">Section ' + escapeHtml(record.section || '-') + ' · Division ' + escapeHtml(record.division || '-') + '</span>'
+                '<span>' + escapeHtml(record.label)
+                    + (selectable ? '' : ' <span class="nacresearch-modal__result-badge">Catégorie</span>') + '</span>',
+                '<span class="nacresearch-modal__result-meta">' + meta + '</span>'
             ].join('');
-            button.addEventListener('click', function () {
-                applySelection(record.code);
-            });
-            state.refs.results.appendChild(button);
+            if (selectable) {
+                element.type = 'button';
+                element.addEventListener('click', function () {
+                    applySelection(record.code);
+                });
+            }
+            state.refs.results.appendChild(element);
         });
     }
 

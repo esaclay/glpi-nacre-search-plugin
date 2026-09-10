@@ -51,6 +51,25 @@ install.sh                         Script de déploiement (copie vers GLPI_PLUGI
 3. `hook.php` injecte la config (limite résultats, debounce, libellés) en meta tags HTML via `plugin_nacresearch_header_tags()`
 4. `public/js/nacre-search.js` scanne le DOM, détecte les champs pertinents, injecte un bouton, ouvre une modale de recherche filtrée en temps réel, et injecte le code choisi dans le champ cible (`input`/`change` events)
 
+### Hiérarchie des codes NACRES (depuis 1.4.0)
+
+Les données NACRES sont hiérarchiques. Le niveau se déduit **uniquement de la forme du code** (`NacreData::codeLevel()`), les codes étant déjà validés par `isValidCode()` (`^[A-Z]{1,2}(?:\.\d{1,2})?$`) :
+
+| Forme | Exemple | `level` | `selectable` | Sens |
+|---|---|---|---|---|
+| 1 lettre | `N` | 1 | `false` | catégorie principale |
+| 2 lettres | `NA` | 2 | `false` | sous-catégorie |
+| 2 lettres + `.` + 1 chiffre | `NA.0` | 3 | `false` | sous-sous-catégorie |
+| 2 lettres + `.` + 2 chiffres | `NA.01` | 4 | `true` | **code NACRE commandable** |
+
+`makeRecord()` ajoute `level` (int 1-4) et `selectable` (bool, `level === 4`) à chaque entrée de `nacre.json`. Seuls les codes de niveau 4 sont sélectionnables dans la modale ; les catégories s'affichent en contexte, colorées, non cliquables.
+
+**Lignes « NE PLUS UTILISER »** (libellé contenant cette mention, souvent avec le code de remplacement — ex. `AD.44 NE PLUS UTILISER AD.32`) : **filtrées à l'import** par `isDeprecatedLabel()`, dans `normalizeRecords()` **et** `recordsFromRows()`. Jamais écrites dans `nacre.json`, jamais proposées. Le widget JS a en plus un garde-fou `isDeprecated()` (regex sur le libellé) au cas où un `nacre.json` non reprocessé en contiendrait encore. Prod : ~36 lignes retirées (2230 → 2194).
+
+**Rendu de la modale** (`renderResults()` dans `nacre-search.js`) : le plafond `result_limit` ne s'applique qu'aux codes (toutes les catégories correspondant à la recherche restent visibles) ; liséré de couleur par **famille** (lettre de tête, teinte HSL générée) sur toutes les lignes ; fond teinté + indentation par **niveau** sur les catégories (`.nacresearch-modal__result--level-{1..4}` dans `nacre-search.css`) + badge « Catégorie ». Helpers JS (`codeLevel`/`isSelectable`) tolérants : repli sur la forme du code si `level`/`selectable` absents du JSON.
+
+Reprocesser un `nacre.json` existant à travers la nouvelle logique : `php bin/update_nacre_data.php --source=<nacre.json> --target=<nacre.json>` (ou réimporter le classeur Excel).
+
 ### Détection des champs par le widget JS (`nacre-search.js`)
 
 Le widget cherche les champs `<input>`/`<textarea>` dont le nom/id/placeholder/aria-label/label contient `nacre` (normalisé, sans accents, insensible à la casse). Le scope réel en production : uniquement le formulaire dédié du catalogue de service, actuellement https://commandes.lps.u-psud.fr/Form/Render/3 (l'ID n'est pas codé en dur dans le JS — voir plus bas).
@@ -164,6 +183,8 @@ Le plugin a traversé une phase de simplification : une approche par contrôleur
 **1.2.0** : ajout du sous-système serveur `ObserverSync` (hook `item_add` sur Ticket) — voir « Observateurs depuis un formulaire de catalogue » ci-dessus. Corrige au passage deux `use` non-composés dans `hook.php` (`use Session;` / `use Throwable;`) qui polluaient `php-errors.log` à chaque chargement.
 
 **1.3.0 / 1.3.1** (même session de dev) : le guide de l'équipe financière est servi directement dans GLPI (`front/guide.php`, entrée **Outils > Guide équipe financière**), réservé aux gestionnaires + administratrice via le nouveau droit lecture `plugin_nacresearch_guide`. Les deux placeholders du guide (emplacement de sauvegarde, contact support) ont été retirés à la demande du labo — l'archivage des pièces reste mentionné comme principe, sans prescrire de procédure. Corrige aussi deux incohérences historiques : (1) le droit d'import existait sous deux clés (`plugin_nacresearch_data` lu au runtime vs `plugin_nacresearch_data_management` seedé/bootstrapé) → la seconde est supprimée, tout est unifié sur `Profile::RIGHT_NACRE` ; (2) le hook `rights_information` était censé afficher les droits dans Administration > Profils mais n'existe pas dans GLPI → retiré, les droits s'accordent uniquement par script/CLI (l'install accorde le guide aux deux profils finance automatiquement).
+
+**1.4.0** : hiérarchie des codes NACRES (voir « Hiérarchie des codes NACRES » ci-dessus). `nacre.json` gagne `level`/`selectable` par entrée ; seuls les codes à 2 chiffres (`NA.01`) sont sélectionnables dans la modale, les catégories (`N`, `NA`, `NA.0`) s'affichent colorées et non cliquables (fond par niveau + liséré par famille) ; les lignes « NE PLUS UTILISER » sont filtrées à l'import. À déployer avec un reprocessing de `nacre.json` (réimport Excel ou `bin/update_nacre_data.php`).
 
 **1.3.2** : correctif CSRF. « Outils > Gestion des données NACRES » → clic sur *Importer* / *Sauvegarder* / *Restaurer* renvoyait « L'action que vous avez réalisée n'est pas autorisée. » (constaté en prod par le Super-Admin le 2026-09-10). Cause : `front/nacredata.form.php` appelait `Session::checkCSRF($_POST)` alors que le noyau GLPI 11 l'a déjà fait et a consommé le jeton (usage unique). Fix : suppression de cet appel + alignement du contrôle de droit sur `front/config.php` (`RIGHT_NACRE` UPDATE ou `config` UPDATE, au lieu d'un test sur le nom de profil « Administratrice financière »). Voir « Droits et sécurité » → note CSRF.
 

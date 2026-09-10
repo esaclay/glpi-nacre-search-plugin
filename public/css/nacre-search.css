@@ -65,17 +65,59 @@
     width: 100%;
     padding: 0.85rem 1rem;
     border: 1px solid #d1d5db;
+    border-left: 4px solid var(--nacre-family, #d1d5db);
     border-radius: 0.5rem;
     background: #fff;
     text-align: left;
     cursor: pointer;
 }
 
-.nacresearch-modal__result:hover,
-.nacresearch-modal__result:focus {
+button.nacresearch-modal__result:hover,
+button.nacresearch-modal__result:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
     outline: 0;
+}
+
+/* Catégories (N, NA, NA.0) : contexte hiérarchique, non sélectionnable. */
+.nacresearch-modal__result--category {
+    cursor: default;
+    align-items: center;
+}
+
+.nacresearch-modal__result--level-1 {
+    background: #e2e8f0;
+    padding-left: 1rem;
+}
+
+.nacresearch-modal__result--level-1 .nacresearch-modal__result-code {
+    font-weight: 700;
+}
+
+.nacresearch-modal__result--level-2 {
+    background: #eef2f7;
+    padding-left: 1.75rem;
+}
+
+.nacresearch-modal__result--level-3 {
+    background: #f5f7fa;
+    padding-left: 2.5rem;
+}
+
+.nacresearch-modal__result--level-4 {
+    padding-left: 3.25rem;
+}
+
+.nacresearch-modal__result-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    background: #475569;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    vertical-align: middle;
 }
 
 .nacresearch-modal__result-code {

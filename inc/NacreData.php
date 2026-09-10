@@ -111,6 +111,10 @@ final class NacreData
             if (!self::isValidCode($code)) {
                 throw new InvalidArgumentException(sprintf('Le code NACRE « %s » est invalide (ligne %d).', $code, $index + 1));
             }
+            // Anciens codes/catégories : jamais proposés à la recherche.
+            if (self::isDeprecatedLabel($label)) {
+                continue;
+            }
             if (isset($codes[$code])) {
                 throw new InvalidArgumentException(sprintf('Le code NACRE « %s » est présent plusieurs fois.', $code));
             }
@@ -217,6 +221,10 @@ final class NacreData
                 continue;
             }
             if (strtoupper(trim($row[13] ?? '')) === 'X') {
+                continue;
+            }
+            // Lignes « NE PLUS UTILISER » : non importées.
+            if (self::isDeprecatedLabel($label)) {
                 continue;
             }
             if (isset($codes[$code])) {
@@ -637,6 +645,32 @@ final class NacreData
     }
 
     /**
+     * Niveau hiérarchique d'un code NACRE d'après sa forme (le code est déjà
+     * validé par isValidCode() en amont) :
+     *   1 → « N »      : catégorie principale
+     *   2 → « NA »     : sous-catégorie
+     *   3 → « NA.0 »   : sous-sous-catégorie
+     *   4 → « NA.01 »  : code NACRE sélectionnable
+     */
+    private static function codeLevel(string $code): int
+    {
+        [$base, $decimals] = array_pad(explode('.', $code, 2), 2, '');
+        if ($decimals === '') {
+            return strlen($base) === 1 ? 1 : 2;
+        }
+        return strlen($decimals) === 1 ? 3 : 4;
+    }
+
+    /**
+     * Lignes « NE PLUS UTILISER » (anciens codes, souvent avec le code de
+     * remplacement dans le libellé) : filtrées à l'import, jamais proposées.
+     */
+    private static function isDeprecatedLabel(string $label): bool
+    {
+        return str_contains(self::asciiSearch($label), 'ne plus utiliser');
+    }
+
+    /**
      * @param list<mixed> $values
      *
      * @return list<string>
@@ -668,6 +702,7 @@ final class NacreData
         array $keywords
     ): array {
         $searchParts = array_merge([$code, $label, $section, $division, $group, $class], $keywords);
+        $level = self::codeLevel($code);
         return [
             'code' => $code,
             'label' => $label,
@@ -675,6 +710,8 @@ final class NacreData
             'division' => $division,
             'group' => $group,
             'class' => $class,
+            'level' => $level,
+            'selectable' => $level === 4,
             'keywords' => $keywords,
             'search' => self::asciiSearch(implode(' ', array_filter($searchParts, static fn (string $value): bool => $value !== ''))),
         ];
@@ -718,7 +755,7 @@ final class NacreData
         $config = [
             'plugin' => [
                 'name' => 'nacresearch',
-                'version' => '1.3.2',
+                'version' => '1.4.0',
             ],
             'ui' => [
                 'selector_hint' => 'nacre',
