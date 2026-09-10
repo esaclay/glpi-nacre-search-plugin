@@ -159,8 +159,13 @@
     font-size: var(--step-1);
     color: var(--ink-soft);
     line-height: 1.5;
-    margin: 0 0 1.8rem;
+    margin: 0 0 1.4rem;
     max-width: 46ch;
+  }
+  .purpose {
+    margin: 0 0 1.8rem;
+    padding-left: 1.1rem;
+    border-left: 3px solid var(--accent-border);
   }
   .accesskey {
     display: flex;
@@ -425,6 +430,7 @@
       <p class="kicker">LPS · Équipe financière · Guide interne</p>
       <h1>Circuit des demandes d'achat</h1>
       <p class="standfirst">Comment une demande passe du formulaire au bon de commande, et ce que l'équipe financière doit faire à chaque étape.</p>
+      <p class="purpose"><strong>À quoi sert l'outil.</strong> <a href="https://commandes.lps.u-psud.fr">commandes.lps.u-psud.fr</a> centralise les <strong>demandes d'achat</strong> du laboratoire&nbsp;: le chercheur remplit un formulaire, l'équipe financière reçoit un ticket et le suit jusqu'à la commande, et tout l'échange (questions, pièces, bon de commande) reste au même endroit. Ce n'est <strong>pas un espace de stockage</strong>&nbsp;: les pièces jointes doivent être récupérées et sauvegardées par l'équipe (<a href="#archivage">section&nbsp;4</a>).</p>
       <div class="accesskey">
         <span class="lbl">Adresse</span>
         <a href="https://commandes.lps.u-psud.fr">commandes.lps.u-psud.fr</a>
@@ -447,7 +453,13 @@
 
     <section id="formulaire">
       <h2><span class="s-num">02</span>Le formulaire de demande</h2>
-      <p class="lede">Formulaire « Demande d'achat »&nbsp;: <a href="https://commandes.lps.u-psud.fr/Form/Render/3">commandes.lps.u-psud.fr/Form/Render/3</a>, aussi accessible depuis <em>Assistance&nbsp;› Catalogue de services</em>.</p>
+      <p class="lede">Un point d'entrée unique pour tout le laboratoire&nbsp;: le formulaire « Demande d'achat ».</p>
+
+      <div class="accesskey">
+        <span class="lbl">Lien à envoyer aux demandeurs</span>
+        <a href="https://commandes.lps.u-psud.fr/Form/Render/3">commandes.lps.u-psud.fr/Form/Render/3</a>
+        <span class="note">Aucun compte à créer au préalable&nbsp;: la connexion CAS (identifiants Paris-Saclay) crée le compte à la première demande. Le formulaire est aussi accessible depuis <em>Assistance&nbsp;› Catalogue de services</em>.</span>
+      </div>
 
       <h3>Ce que le demandeur saisit</h3>
       <ul class="fields">
@@ -486,7 +498,7 @@
       </ul>
 
       <h3>À l'envoi</h3>
-      <p>Le formulaire crée un <strong>ticket</strong> automatiquement attribué au groupe <span class="field">Gestionnaires financiers</span>. La pièce jointe est rattachée au ticket. Une notification « Nouveau ticket » part vers toute l'équipe financière et l'administratrice.</p>
+      <p>Le formulaire crée un <strong>ticket</strong> automatiquement attribué au groupe <span class="field">Gestionnaires financiers</span>. La ou les pièces jointes sont rattachées au ticket. Une notification <strong>« Nouveau ticket »</strong> part vers toute l'équipe financière et l'administratrice&nbsp;; le demandeur reçoit un accusé de réception avec un lien pour suivre et compléter sa demande.</p>
     </section>
 
     <section id="ticket">
@@ -497,28 +509,28 @@
           <span class="n">1</span>
           <span>
             <span class="h">Réception<span class="who">Toute l'équipe</span></span>
-            <span class="b"><p>Le ticket arrive au statut <span class="field">Nouveau</span>. Tout le monde le voit dans la file du groupe.</p></span>
+            <span class="b"><p>Le ticket arrive au statut <span class="field">Nouveau</span>, visible dans la file du groupe et notifié à toute l'équipe.</p></span>
           </span>
         </li>
         <li>
           <span class="n">2</span>
           <span>
             <span class="h">Répartition<span class="who">Administratrice</span></span>
-            <span class="b"><p>L'administratrice attribue le ticket à un gestionnaire (elle seule a le droit d'attribuer).</p></span>
+            <span class="b"><p>L'administratrice attribue le ticket à un gestionnaire (elle seule peut attribuer). En cas d'absence ou de rééquilibrage de la charge, elle peut <strong>réattribuer</strong> un ticket déjà pris en charge à un autre gestionnaire.</p></span>
           </span>
         </li>
         <li>
           <span class="n">3</span>
           <span>
             <span class="h">Prise en charge<span class="who">Gestionnaire</span></span>
-            <span class="b"><p>Le gestionnaire se met « en charge » du ticket et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge la ou les pièces jointes</strong> et en conserve une copie (voir <a href="#archivage">section&nbsp;4</a>).</p></span>
+            <span class="b"><p>Le gestionnaire se met « en charge » et passe le statut à <span class="field">En cours</span>. Il ouvre le ticket, <strong>télécharge les pièces jointes du demandeur</strong> et les <strong>enregistre sur les espaces de l'équipe</strong> — GLPI n'est pas un espace de stockage (<a href="#archivage">section&nbsp;4</a>).</p></span>
           </span>
         </li>
         <li>
           <span class="n">4</span>
           <span>
             <span class="h">Traitement<span class="who">Gestionnaire</span></span>
-            <span class="b"><p>Passe la commande, saisit les informations utiles en <strong>suivi</strong>. Suivi <em>public</em> = visible par le demandeur&nbsp;; suivi <em>privé</em> = interne à l'équipe. Statut <span class="field">En attente</span> si la demande est bloquée (pièce manquante, question au demandeur…).</p></span>
+            <span class="b"><p>Passe la commande, note les informations utiles en <strong>suivi</strong>. Suivi <em>public</em> = visible par le demandeur&nbsp;; suivi <em>privé</em> = interne à l'équipe. Statut <span class="field">En attente</span> si la demande est bloquée (pièce manquante, question au demandeur…).</p></span>
           </span>
         </li>
         <li>
@@ -531,13 +543,20 @@
         <li>
           <span class="n">6</span>
           <span>
-            <span class="h">Clôture<span class="who">Gestionnaire · auto</span></span>
-            <span class="b"><p>Le ticket passe à <span class="field">Clos</span>. Les tickets restés ouverts trop longtemps déclenchent des relances automatiques vers l'équipe et l'administratrice.</p></span>
+            <span class="h">Compléments éventuels<span class="who">Demandeur</span></span>
+            <span class="b"><p>Tant que le ticket n'est pas clos, le demandeur peut ajouter un suivi (devis corrigé, précision, relance) <strong>depuis le lien reçu par e-mail</strong>. Le ticket repasse alors côté équipe pour être repris.</p></span>
+          </span>
+        </li>
+        <li>
+          <span class="n">7</span>
+          <span>
+            <span class="h">Clôture<span class="who">Auto · équipe</span></span>
+            <span class="b"><p>Un ticket <span class="field">Résolu</span> passe automatiquement à <span class="field">Clos</span> après un délai sans réaction du demandeur. Un gestionnaire ou l'administratrice peut aussi le clore manuellement si tout est réglé. Un ticket <strong>clos ne se modifie plus</strong> — une nouvelle demande passe par un nouveau formulaire.</p></span>
           </span>
         </li>
       </ol>
       <div class="note-block">
-        Un gestionnaire ne voit que les tickets de son groupe et ceux qu'il a pris en charge — pas l'ensemble des tickets. L'administratrice voit tout.
+        Un gestionnaire ne voit que les tickets de son groupe et ceux qu'il a pris en charge — pas l'ensemble des tickets&nbsp;; l'administratrice voit tout. Les tickets qui traînent (ni résolus ni clos depuis longtemps) déclenchent des relances automatiques vers l'équipe et l'administratrice.
       </div>
     </section>
 
@@ -549,10 +568,10 @@
         <h3><span class="tag">Règle</span>Le ticket n'est pas un espace de sauvegarde</h3>
         <p>Les documents déposés dans un formulaire ou un ticket servent <strong>au traitement de la demande</strong>, pas à l'archivage. Ils peuvent disparaître&nbsp;: purge d'anciens tickets, incident serveur, dépassement du quota disque (surveillé, alerte à&nbsp;85&nbsp;%). Une pièce jointe supprimée n'est <strong>pas récupérable</strong>.</p>
         <p>Les documents ne sont pas non plus joints aux e-mails de notification&nbsp;: il faut ouvrir le ticket dans GLPI pour les télécharger.</p>
-        <p class="rule-line">À chaque ticket traité&nbsp;: le gestionnaire <strong>télécharge la ou les pièces jointes</strong> (devis, bon de commande, facture) et en <strong>conserve une copie</strong> selon les procédures d'archivage de l'équipe financière, avant de passer le ticket à <span class="field">Résolu</span>.</p>
+        <p class="rule-line">Systématiquement&nbsp;: <strong>la personne qui prend en charge le ticket</strong> télécharge les pièces jointes du demandeur (devis, bon de commande, facture) et les <strong>enregistre sur les espaces de l'équipe financière</strong> (serveur, dossiers partagés), avant de passer le ticket à <span class="field">Résolu</span>.</p>
       </div>
 
-      <p>Le ticket reste la <strong>trace du circuit</strong> (qui a demandé quoi, quand, qui a traité). L'archive de référence des pièces comptables, elle, vit hors de GLPI, dans l'archivage propre à l'équipe financière.</p>
+      <p>Le ticket reste la <strong>trace du circuit</strong> (qui a demandé quoi, quand, qui a traité). L'archive de référence des pièces comptables, elle, vit <strong>hors de GLPI</strong>, sur les espaces propres à l'équipe financière.</p>
     </section>
 
     <section id="nacre">
