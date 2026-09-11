@@ -66,7 +66,7 @@
 .nacresearch-modal__results {
     display: grid;
     align-content: start;
-    gap: 0.5rem;
+    gap: 0.3rem;
     flex: 1;
     overflow-y: auto;
     min-height: 0;
@@ -74,15 +74,16 @@
 
 .nacresearch-modal__result {
     display: grid;
-    gap: 0.35rem;
+    gap: 0.1rem;
     width: 100%;
-    padding: 0.85rem 1rem;
+    padding: 0.4rem 0.85rem;
     border: 1px solid #d1d5db;
     border-left: 4px solid var(--nacre-family, #d1d5db);
-    border-radius: 0.5rem;
+    border-radius: 0.4rem;
     background: #fff;
     text-align: left;
     cursor: pointer;
+    font-size: 0.9rem;
 }
 
 button.nacresearch-modal__result:hover,
@@ -142,6 +143,10 @@ button.nacresearch-modal__result:focus {
 .nacresearch-modal__status {
     color: #4b5563;
     font-size: 0.95rem;
+}
+
+.nacresearch-modal__result-meta {
+    font-size: 0.78rem;
 }
 
 .nacresearch-modal__status {
