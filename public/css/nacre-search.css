@@ -35,8 +35,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 1.25rem;
+    padding: 0.5rem 1.25rem;
     border-bottom: 1px solid #e5e7eb;
+}
+
+.nacresearch-modal__header h2 {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
 .nacresearch-modal__footer {
@@ -47,14 +52,14 @@
 .nacresearch-modal__body {
     display: flex;
     flex-direction: column;
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1.25rem;
     overflow: hidden;
     min-height: 0;
 }
 
 .nacresearch-modal__search {
     width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-shrink: 0;
 }
 
@@ -141,7 +146,7 @@ button.nacresearch-modal__result:focus {
 
 .nacresearch-modal__status {
     flex-shrink: 0;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
 }
 
 .nacresearch-modal__status--truncated {
