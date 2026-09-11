@@ -155,6 +155,6 @@ button.nacresearch-modal__result:focus {
 }
 
 .nacresearch-modal__status--truncated {
-    color: #b45309;
-    font-weight: 600;
+    color: #92600c;
+    font-size: 0.85rem;
 }
