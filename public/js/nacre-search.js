@@ -297,45 +297,22 @@
 
         // Le plafond ne s'applique qu'aux codes : toutes les catégories
         // correspondantes restent visibles pour garder le fil hiérarchique.
-        // Répartition round-robin par famille (lettre de tête) plutôt qu'un
-        // simple ordre de fichier : sinon, avec une recherche large, le quota
-        // se retrouve épuisé par les premières familles alphabétiques et les
-        // familles suivantes n'affichent plus que des catégories sans codes.
+        var shown = [];
+        var codeCount = 0;
         var categoryCount = 0;
         var totalMatchingCodes = 0;
-        var codesByFamily = {};
-        var familyOrder = [];
         matches.forEach(function (record) {
             if (!isSelectable(record)) {
                 categoryCount += 1;
+                shown.push(record);
                 return;
             }
             totalMatchingCodes += 1;
-            var family = String(record.code || 'A').charAt(0).toUpperCase();
-            if (!codesByFamily[family]) {
-                codesByFamily[family] = [];
-                familyOrder.push(family);
+            if (codeCount >= state.resultLimit) {
+                return;
             }
-            codesByFamily[family].push(record);
-        });
-
-        var selectedCodes = Object.create(null);
-        var codeCount = 0;
-        var exhausted = false;
-        while (!exhausted && codeCount < state.resultLimit) {
-            exhausted = true;
-            for (var i = 0; i < familyOrder.length && codeCount < state.resultLimit; i += 1) {
-                var bucket = codesByFamily[familyOrder[i]];
-                if (bucket.length) {
-                    selectedCodes[bucket.shift().code] = true;
-                    codeCount += 1;
-                    exhausted = false;
-                }
-            }
-        }
-
-        var shown = matches.filter(function (record) {
-            return !isSelectable(record) || selectedCodes[record.code];
+            codeCount += 1;
+            shown.push(record);
         });
 
         state.refs.results.innerHTML = '';
@@ -344,8 +321,7 @@
         state.refs.status.textContent = !shown.length
             ? '0 résultat affiché.'
             : truncated
-                ? codeCount + ' code(s) affiché(s) sur ' + totalMatchingCodes + ' correspondant(s) · '
-                    + categoryCount + ' catégorie(s). Affinez votre recherche pour voir les codes restants.'
+                ? codeCount + ' codes sur ' + totalMatchingCodes + ' — précisez votre recherche pour en voir plus.'
                 : codeCount + ' code(s) · ' + categoryCount + ' catégorie(s) sur ' + records.length + '.';
         state.refs.status.classList.toggle('nacresearch-modal__status--truncated', truncated);
 

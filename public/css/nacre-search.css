@@ -45,18 +45,26 @@
 }
 
 .nacresearch-modal__body {
+    display: flex;
+    flex-direction: column;
     padding: 1rem 1.25rem;
-    overflow: auto;
+    overflow: hidden;
+    min-height: 0;
 }
 
 .nacresearch-modal__search {
     width: 100%;
     margin-bottom: 1rem;
+    flex-shrink: 0;
 }
 
 .nacresearch-modal__results {
     display: grid;
+    align-content: start;
     gap: 0.5rem;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
 }
 
 .nacresearch-modal__result {
@@ -132,11 +140,8 @@ button.nacresearch-modal__result:focus {
 }
 
 .nacresearch-modal__status {
-    position: sticky;
-    top: 0;
-    background: #fff;
-    padding-bottom: 0.5rem;
-    z-index: 1;
+    flex-shrink: 0;
+    margin-bottom: 0.75rem;
 }
 
 .nacresearch-modal__status--truncated {
