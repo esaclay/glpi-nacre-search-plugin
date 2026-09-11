@@ -162,7 +162,6 @@
             '  </div>',
             '  <div class="nacresearch-modal__footer">',
             '    <span class="nacresearch-modal__empty" data-nacresearch-empty hidden>Aucun résultat pour cette recherche.</span>',
-            '    <button type="button" class="btn btn-secondary" data-nacresearch-close>Annuler</button>',
             '  </div>',
             '</div>'
         ].join('');
