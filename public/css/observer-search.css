@@ -1,0 +1,52 @@
+.observersearch-dropdown {
+    z-index: 1055;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.4rem;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.observersearch-dropdown[hidden] {
+    display: none !important;
+}
+
+.observersearch-dropdown__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    width: 100%;
+    padding: 0.35rem 0.6rem;
+    border: 0;
+    border-radius: 0.3rem;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.observersearch-dropdown__item strong {
+    font-weight: 600;
+}
+
+.observersearch-dropdown__item span {
+    color: #4b5563;
+    font-size: 0.78rem;
+}
+
+.observersearch-dropdown__item:hover,
+.observersearch-dropdown__item:focus {
+    background: #eef2ff;
+    outline: 0;
+}
+
+.observersearch-dropdown__hint {
+    padding: 0.4rem 0.6rem;
+    color: #4b5563;
+    font-size: 0.8rem;
+    font-style: italic;
+}

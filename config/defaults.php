@@ -3,7 +3,7 @@
 return [
     'plugin' => [
         'name' => 'nacresearch',
-        'version' => '1.4.0',
+        'version' => '1.5.0',
     ],
     'ui' => [
         'selector_hint' => 'nacre',
@@ -26,5 +26,20 @@ return [
         'ldap_server_id' => null,
         // Domaine des adresses éligibles à l'import LDAP (vide => toutes).
         'ldap_email_domain' => 'universite-paris-saclay.fr',
+    ],
+    // Recherche LDAP en direct (au fil de la frappe) proposée sur le champ
+    // « Observateurs (adresses mail) » du formulaire catalogue, pour aider à
+    // trouver l'adresse exacte d'une personne du labo. Recherche seule :
+    // aucun compte n'est créé ici, voir la clé 'observers' ci-dessus (import
+    // à la soumission, inchangé). Interroge le même annuaire LDAP
+    // ('observers.ldap_server_id').
+    'observer_search' => [
+        'enabled' => true,
+        'min_query_length' => 2,
+        'result_limit' => 10,
+        'debounce_ms' => 250,
+        'field_label_hint' => 'observateur',
+        'placeholder' => 'Rechercher par nom, prénom ou e-mail…',
+        'empty_hint' => "Aucun résultat — vous pouvez saisir l'adresse e-mail directement.",
     ],
 ];

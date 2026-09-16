@@ -99,5 +99,54 @@ function plugin_nacresearch_header_tags(): array
                 'content' => (string) ($config['ui']['modal_title'] ?? 'Recherche de code NACRE'),
             ],
         ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-url',
+                'content' => '/plugins/nacresearch/front/observer-search.php',
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-min-length',
+                'content' => (string) ($config['observer_search']['min_query_length'] ?? 2),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-result-limit',
+                'content' => (string) ($config['observer_search']['result_limit'] ?? 10),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-debounce-ms',
+                'content' => (string) ($config['observer_search']['debounce_ms'] ?? 250),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-field-hint',
+                'content' => (string) ($config['observer_search']['field_label_hint'] ?? 'observateur'),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-placeholder',
+                'content' => (string) ($config['observer_search']['placeholder'] ?? ''),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:observer-search-empty-hint',
+                'content' => (string) ($config['observer_search']['empty_hint'] ?? ''),
+            ],
+        ],
     ];
 }

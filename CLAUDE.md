@@ -22,16 +22,20 @@ inc/
   Menu.php                         Entrée « Outils › NACRES » (hook menu_toradd), gardée par RIGHT_NACRE
   GuideMenu.php                    Entrée « Outils › Guide équipe financière » (hook menu_toradd), gardée par RIGHT_GUIDE
   ObserverSync.php                 Hook item_add Ticket : résout/importe depuis LDAP les observateurs saisis en e-mail
+  LdapObserverSearch.php           Recherche LDAP live (nom/prénom/e-mail) pour aider à saisir les observateurs — pas d'écriture, pas d'import
 front/
   config.php                       Interface admin (import / backup / restore)
   nacredata.form.php               Handler des actions d'import/backup/restore
   guide.php                        Sert docs/guide-equipe-financiere.html dans le chrome GLPI (iframe), gardé par RIGHT_GUIDE
+  observer-search.php              Endpoint JSON (GET, utilisateur authentifié) pour la recherche live d'observateurs
 config/
   defaults.php                     Config par défaut (versionnée)
   local.php                        Surcharge locale (non versionnée, générée à l'install)
 public/
   js/nacre-search.js               Widget de recherche injecté côté client
   css/nacre-search.css             Styles du widget
+  js/observer-search.js            Widget de recherche live d'observateurs (dropdown, sur le champ e-mail du Form 3)
+  css/observer-search.css          Styles du widget
   data/nacre.json                  Données NACRE servies au front (générées/importées)
 bin/
   configure.php                    CLI : init des données NACRE depuis resources/nacre.example.json
@@ -95,7 +99,7 @@ Sous-système **serveur** distinct du widget JS. Objectif : permettre au formula
 
 Montage :
 
-1. Le formulaire a une question type **E-mail** « Observateurs (adresses mail) » (question unique, non obligatoire). La destination Ticket → Acteurs → Observateurs est réglée sur *« Réponse depuis une question spécifique » → « Observateurs (adresses mail) »* → GLPI ajoute nativement chaque adresse comme observateur **« acteur e-mail »** (`glpi_tickets_users` avec `users_id = 0`, `alternative_email` renseigné, notifications seules). Choix assumé : **un seul champ e-mail**, pas de 2e question « Acteurs » (autocomplétion des comptes existants) — jugé trop lourd pour le gain.
+1. Le formulaire a une question type **E-mail** « Observateurs (adresses mail) » (question unique, non obligatoire). La destination Ticket → Acteurs → Observateurs est réglée sur *« Réponse depuis une question spécifique » → « Observateurs (adresses mail) »* → GLPI ajoute nativement chaque adresse comme observateur **« acteur e-mail »** (`glpi_tickets_users` avec `users_id = 0`, `alternative_email` renseigné, notifications seules). Choix assumé : **un seul champ e-mail**, pas de 2e question « Acteurs » (autocomplétion des comptes existants uniquement — voir « Recherche LDAP live » ci-dessous pour pourquoi ce ne serait pas suffisant) — jugé trop lourd pour le gain.
 2. Hook `Hooks::ITEM_ADD` sur `Ticket` (`plugin_nacresearch_ticket_add` → `ObserverSync::syncFromTicket()`). Pour chaque observateur acteur-e-mail dont l'adresse appartient au domaine `observers.ldap_email_domain` :
    - compte GLPI trouvé par e-mail (`glpi_useremails`) → on rattache la ligne au compte ;
    - sinon `AuthLDAP::ldapImportUserByServerId(IDENTIFIER_LOGIN = partie locale de l'e-mail, ACTION_IMPORT, serveur)` → import du compte puis rattachement ;
@@ -112,6 +116,15 @@ Config (`config/defaults.php` → clé `observers`, surchargeable dans `config/l
 | `ldap_email_domain` | `universite-paris-saclay.fr` | Seules les adresses de ce domaine sont candidates à l'import ; vide ⇒ toutes |
 
 Prod (vérifié 2026-09-09, cf mémoires `glpi-ldap-cas-config` / `glpi-prod-topology`) : annuaire « Adonis » ID 1, champ identifiant `uid` = `prenom.nom` = identifiant renvoyé par le CAS (donc un compte importé se lie sans doublon à la future connexion CAS). Filtre de connexion LDAP `(departmentNumber=100)` ⇒ seuls les personnels LPS sont importables ; c'est ce filtre qui distingue « collègue labo → compte créé » de « externe → notifications seules ». La règle d'habilitation « Root » (ruleright ID 76) attribue automatiquement le profil Self-Service aux comptes issus du LDAP.
+
+### Recherche LDAP live pour le champ Observateurs (`inc/LdapObserverSearch.php`, depuis 1.5.0)
+
+Problème résolu : une personne du labo qui ne s'est **jamais connectée via CAS** n'a pas encore de compte GLPI, donc introuvable par une recherche de compte GLPI existant — l'utilisateur devait deviner son adresse e-mail exacte pour la question « Observateurs (adresses mail) ». Deux pistes écartées : synchro LDAP quotidienne de tout le labo (comptes dormants, pas de garde-fou humain pour exclure les comptes techniques) ; 2e question native GLPI « Acteurs » (ne cherche que parmi les comptes déjà existants, ne couvre pas le cas réel, ferait doublon avec la recherche ci-dessous sans réduire le travail).
+
+- `public/js/observer-search.js` : widget séparé de `nacre-search.js` (mêmes garde-fous de détection de formulaire, réutilisés à l'identique). Repère les `input[type="email"]` dont le nom/label contient `observateur` (config `observer_search.field_label_hint`), interroge `front/observer-search.php` à chaque frappe (débouncée, `AbortController` pour annuler une requête en vol), affiche un dropdown de candidats (nom/prénom/e-mail). Le champ reste **un seul champ à valeurs délimitées par `, `** : une sélection remplace uniquement le fragment en cours de saisie (texte après le dernier `, `), ce qui permet d'enchaîner plusieurs observateurs sans effacer les précédents. ⚠️ Ce format (délimiteur vs bloc répétable natif GLPI) est une hypothèse posée faute d'accès prod pour vérification — si le champ réel est un bloc répétable, ajuster `VALUE_DELIMITER` et `applySelection()`.
+- `front/observer-search.php` : endpoint JSON en GET (`?q=`), accessible à **tout utilisateur authentifié** (`Session::getLoginUserID()` seul — `RIGHT_NACRE`/`RIGHT_GUIDE` sont réservés à un usage admin/finance et ne conviennent pas à un demandeur lambda soumettant le formulaire catalogue). Longueur minimale de requête vérifiée côté serveur (pas seulement JS).
+- `LdapObserverSearch::search()` : recherche pure, **ne crée ni ne modifie aucun compte** — l'import reste exclusivement géré par `ObserverSync` à la soumission, inchangé. Réutilise l'annuaire configuré par `observers.ldap_server_id` (même clé que `ObserverSync`, pas de duplication). Connexion via `AuthLDAP::connect()` (méthode d'instance du cœur, gère TLS et déchiffrement du mot de passe de lecture). Filtre : `(&<condition-connexion-du-serveur>(sn=*)(!(uid=tel.*))(|(uid=*terme*)(sn=*terme*)(givenname=*terme*)(mail=*terme*)))`, terme échappé via `ldap_escape(…, LDAP_ESCAPE_FILTER)`. Le filtre de connexion du serveur (`(departmentNumber=100)` en prod) fait déjà le tri labo/hors-labo ; `sn=*` + exclusion `uid=tel.*` écartent en plus les comptes techniques (téléphones du LDAP université, sans nom de famille — confirmé sur un extrait LDIF réel en prod).
+- Config (`config/defaults.php` → clé `observer_search`) : `enabled`, `min_query_length` (2), `result_limit` (10), `debounce_ms` (250), `field_label_hint` (`observateur`), `placeholder`, `empty_hint`.
 
 ## Droits et sécurité
 
@@ -189,3 +202,5 @@ Le plugin a traversé une phase de simplification : une approche par contrôleur
 **1.3.2** : correctif CSRF. « Outils > Gestion des données NACRES » → clic sur *Importer* / *Sauvegarder* / *Restaurer* renvoyait « L'action que vous avez réalisée n'est pas autorisée. » (constaté en prod par le Super-Admin le 2026-09-10). Cause : `front/nacredata.form.php` appelait `Session::checkCSRF($_POST)` alors que le noyau GLPI 11 l'a déjà fait et a consommé le jeton (usage unique). Fix : suppression de cet appel + alignement du contrôle de droit sur `front/config.php` (`RIGHT_NACRE` UPDATE ou `config` UPDATE, au lieu d'un test sur le nom de profil « Administratrice financière »). Voir « Droits et sécurité » → note CSRF.
 
 `docs/guide-equipe-financiere.html` : guide d'utilisation de l'instance de prod pour les profils financiers (accès, formulaire, cycle de vie des tickets, **règle d'archivage des pièces jointes**). Pas de tableau des droits par profil — retiré à la demande du labo (jugé « mal pris »). Fichier fragment (pas de `<!doctype>`/`<head>`) : le `<title>` en tête + `<style>` inline, rendu autonome par un wrapper minimal. **Seul canal de diffusion : GLPI** (`front/guide.php?raw=1`). Décision 2026-09-10 : plus d'export PDF (`docs/guide-equipe-financiere.pdf` supprimé du dépôt), plus d'artifact claude.ai (l'ancien est à supprimer / supprimé dans la galerie claude.ai — non recréé). Le `@media print` du HTML reste pour un Ctrl+P ponctuel.
+
+**1.5.0** : recherche LDAP live pour le champ Observateurs (voir « Recherche LDAP live pour le champ Observateurs » ci-dessus). N'affecte pas `ObserverSync`/le hook `item_add` : recherche seule, aucune écriture. **Point non vérifié avant déploiement** : le format exact du champ « Observateurs (adresses mail) » côté Form Renderer (champ unique délimité par `, ` supposé par le code, à confirmer par un test réel sur `Form/Render/3` avant ou juste après mise en prod — voir le commentaire en tête de `VALUE_DELIMITER` dans `observer-search.js`).
