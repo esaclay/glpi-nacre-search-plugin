@@ -168,11 +168,22 @@
         return { start: start, text: value.slice(start) };
     }
 
+    // Le champ « Observateurs » n'a, à ce jour, pas l'attribut HTML
+    // `multiple` (validation native : une seule adresse à la fois). S'il
+    // est un jour rendu avec `multiple` (plusieurs réponses activées côté
+    // GLPI sur une valeur unique délimitée), on retombe automatiquement sur
+    // la logique d'ajout par virgule ; sinon on remplace simplement la
+    // valeur du champ ciblé — correct aussi bien pour le champ simple actuel
+    // que pour un futur bloc répétable (chaque ligne ne porte qu'une adresse).
     function applySelection(field, fieldState, email) {
-        var value = field.value || '';
-        var fragment = currentFragment(field);
-        var prefix = value.slice(0, fragment.start);
-        field.value = prefix + email + VALUE_DELIMITER;
+        if (field.multiple) {
+            var value = field.value || '';
+            var fragment = currentFragment(field);
+            var prefix = value.slice(0, fragment.start);
+            field.value = prefix + email + VALUE_DELIMITER;
+        } else {
+            field.value = email;
+        }
         field.dispatchEvent(new Event('input', { bubbles: true }));
         field.dispatchEvent(new Event('change', { bubbles: true }));
         closeDropdown(fieldState);
@@ -256,7 +267,8 @@
         var fieldState = createDropdown(field);
 
         field.addEventListener('input', debounce(function () {
-            search(field, fieldState, currentFragment(field).text.trim());
+            var query = field.multiple ? currentFragment(field).text.trim() : (field.value || '').trim();
+            search(field, fieldState, query);
         }, state.debounceMs));
 
         field.addEventListener('blur', function () {
