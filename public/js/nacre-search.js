@@ -4,7 +4,10 @@
     var state = {
         data: null,
         loading: null,
-        activeField: null,
+        // Élément qui reprend le focus à la fermeture, et action au choix d'un code.
+        returnFocus: null,
+        onSelect: null,
+        orderLinesHint: 'lignes nacre',
         triggerClass: 'nacresearch-trigger',
         modal: null,
         refs: null,
@@ -26,6 +29,11 @@
         state.dataUrl = readMeta('nacresearch:data-url', state.dataUrl);
         state.buttonLabel = readMeta('nacresearch:button-label', state.buttonLabel);
         state.modalTitle = readMeta('nacresearch:modal-title', state.modalTitle);
+        // Meta présente mais vide = éditeur de lignes désactivé (pas de repli).
+        var hintTag = document.querySelector('meta[name="nacresearch:orderlines-hint"]');
+        if (hintTag) {
+            state.orderLinesHint = normalize(hintTag.content);
+        }
     }
 
     function fetchData() {
@@ -101,7 +109,9 @@
         return field.closest('[data-glpi-form-renderer-question]');
     }
 
-    function fieldMatches(field) {
+    // Champ d'une vraie question du catalogue de formulaires dont le nom/libellé
+    // contient `hint` (normalisé). Partagé avec nacre-orderlines.js.
+    function isCatalogQuestionField(field, hint) {
         // Cheap URL-based first pass, kept as defense-in-depth for the legacy
         // /front/ticket.form.php interface, which doesn't use the
         // itil-object-fields DOM markup checked below.
@@ -137,8 +147,17 @@
         labels.push(question.getAttribute('aria-label'));
         var candidates = [field.name, field.id, field.placeholder, field.getAttribute('aria-label')].concat(labels);
         return candidates.some(function (value) {
-            return normalize(value).indexOf('nacre') !== -1;
+            return normalize(value).indexOf(hint) !== -1;
         });
+    }
+
+    function fieldMatches(field) {
+        // La question « Lignes NACRES » est prise en charge par l'éditeur de
+        // lignes (nacre-orderlines.js), pas par le bouton simple.
+        if (state.orderLinesHint && isCatalogQuestionField(field, state.orderLinesHint)) {
+            return false;
+        }
+        return isCatalogQuestionField(field, 'nacre');
     }
 
     function createModal() {
@@ -211,19 +230,21 @@
         };
     }
 
-    function openModal(field) {
-        state.activeField = field;
+    // options : { query, returnFocus, onSelect(record) }
+    function openModal(options) {
+        state.returnFocus = options.returnFocus || null;
+        state.onSelect = options.onSelect;
         var modal = createModal();
         modal.hidden = false;
         state.refs.status.textContent = 'Chargement des données…';
         state.refs.results.innerHTML = '';
         state.refs.empty.hidden = true;
-        state.refs.search.value = field.value || '';
+        state.refs.search.value = options.query || '';
 
         fetchData()
             .then(function () {
                 state.refs.status.textContent = state.data.length + ' codes disponibles.';
-                renderResults(state.refs.search.value || field.value || '');
+                renderResults(state.refs.search.value);
                 state.refs.search.focus();
             })
             .catch(function (error) {
@@ -239,8 +260,8 @@
         state.modal.hidden = true;
         state.refs.results.innerHTML = '';
         state.refs.empty.hidden = true;
-        if (state.activeField) {
-            state.activeField.focus();
+        if (state.returnFocus) {
+            state.returnFocus.focus();
         }
     }
 
@@ -343,22 +364,25 @@
             if (selectable) {
                 element.type = 'button';
                 element.addEventListener('click', function () {
-                    applySelection(record.code);
+                    applySelection(record);
                 });
             }
             state.refs.results.appendChild(element);
         });
     }
 
-    function applySelection(code) {
-        if (!state.activeField) {
-            return;
-        }
-
-        state.activeField.value = code;
-        state.activeField.dispatchEvent(new Event('input', { bubbles: true }));
-        state.activeField.dispatchEvent(new Event('change', { bubbles: true }));
+    function applySelection(record) {
+        var onSelect = state.onSelect;
         closeModal();
+        if (onSelect) {
+            onSelect(record);
+        }
+    }
+
+    function setFieldValue(field, value) {
+        field.value = value;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     function escapeHtml(value) {
@@ -386,7 +410,13 @@
         button.className = 'btn btn-outline-primary btn-sm ' + state.triggerClass;
         button.textContent = state.buttonLabel;
         button.addEventListener('click', function () {
-            openModal(field);
+            openModal({
+                query: field.value,
+                returnFocus: field,
+                onSelect: function (record) {
+                    setFieldValue(field, record.code);
+                }
+            });
         });
 
         field.insertAdjacentElement('afterend', button);
@@ -419,6 +449,21 @@
         scan(document);
         initObserver();
     }
+
+    // API partagée avec nacre-orderlines.js (chargé après ce fichier).
+    window.NacreSearch = {
+        fetchData: fetchData,
+        normalize: normalize,
+        escapeHtml: escapeHtml,
+        isSelectable: isSelectable,
+        isCatalogQuestionField: isCatalogQuestionField,
+        setFieldValue: setFieldValue,
+        // onSelect(record) reçoit l'entrée nacre.json choisie (code de niveau 4).
+        pickCode: function (options) {
+            loadRuntimeConfig();
+            openModal(options);
+        }
+    };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', bootstrap);

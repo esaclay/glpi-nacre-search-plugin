@@ -3,7 +3,7 @@
 return [
     'plugin' => [
         'name' => 'nacresearch',
-        'version' => '1.5.0',
+        'version' => '1.6.0',
     ],
     'ui' => [
         'selector_hint' => 'nacre',
@@ -14,6 +14,14 @@ return [
     ],
     'data' => [
         'source' => 'public/data/nacre.json',
+    ],
+    // Lignes de commande NACRES (code + désignation + montant HT) : question
+    // texte court du formulaire catalogue dont le libellé contient l'indice
+    // ci-dessous, transformée en tableau par nacre-orderlines.js ; à la
+    // soumission, les lignes sont enregistrées sur le ticket (OrderLineSync).
+    'order_lines' => [
+        'enabled' => true,
+        'field_label_hint' => 'lignes nacre',
     ],
     // Synchronisation des observateurs saisis dans un formulaire de catalogue :
     // à la création du ticket, chaque observateur « acteur e-mail » dont

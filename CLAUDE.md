@@ -23,17 +23,23 @@ inc/
   GuideMenu.php                    Entrée « Outils › Guide équipe financière » (hook menu_toradd), gardée par RIGHT_GUIDE
   ObserverSync.php                 Hook item_add Ticket : résout/importe depuis LDAP les observateurs saisis en e-mail
   LdapObserverSearch.php           Recherche LDAP live (nom/prénom/e-mail) pour aider à saisir les observateurs — pas d'écriture, pas d'import
+  OrderLines.php                   Lignes NACRES d'un ticket (table, format texte d'échange, parse/format, historique)
+  OrderLineSync.php                Hook item_add AnswersSet_FormDestinationItem : crée les lignes depuis la question « Lignes NACRES »
+  OrderLineTab.php                 Onglet « Lignes NACRES » sur Ticket (consultation + modification gardée par RIGHT_LINES)
 front/
   config.php                       Interface admin (import / backup / restore)
   nacredata.form.php               Handler des actions d'import/backup/restore
   guide.php                        Sert docs/guide-equipe-financiere.html dans le chrome GLPI (iframe), gardé par RIGHT_GUIDE
   observer-search.php              Endpoint JSON (GET, utilisateur authentifié) pour la recherche live d'observateurs
+  orderlines.form.php              Handler POST de l'onglet « Lignes NACRES » (RIGHT_LINES UPDATE)
 config/
   defaults.php                     Config par défaut (versionnée)
   local.php                        Surcharge locale (non versionnée, générée à l'install)
 public/
-  js/nacre-search.js               Widget de recherche injecté côté client
+  js/nacre-search.js               Widget de recherche injecté côté client ; expose window.NacreSearch (modale réutilisable)
   css/nacre-search.css             Styles du widget
+  js/nacre-orderlines.js           Éditeur de lignes NACRES (Form 3 + onglet ticket), s'appuie sur window.NacreSearch
+  css/nacre-orderlines.css         Styles de l'éditeur
   js/observer-search.js            Widget de recherche live d'observateurs (dropdown, sur le champ e-mail du Form 3)
   css/observer-search.css          Styles du widget
   data/nacre.json                  Données NACRE servies au front (générées/importées)
@@ -41,6 +47,7 @@ bin/
   configure.php                    CLI : init des données NACRE depuis resources/nacre.example.json
   update_nacre_data.php            CLI : mise à jour des données depuis un JSON externe
   bootstrap_lps_ticket_workflow.php CLI : bootstrap entité/groupe/profils pour le workflow financier LPS
+  migrate_legacy_nacre_codes.php   CLI ponctuel (1.6.0) : reprise de l'ancien champ Fields « Code NACRE » vers les lignes
 resources/
   nacre.example.json               Exemple de données NACRE
 docs/
@@ -93,6 +100,18 @@ Garde-fous, dans l'ordre de vérification :
 
 ⚠️ **Rendre la question "CODE NACRE" obligatoire — limitation GLPI 11** : le bouton « Obligatoire » de l'éditeur de formulaire est **désactivé pour les questions de type « Champ »** (celles liées au plugin Fields), il ne fonctionne que pour les questions texte/liste natives. Contournement retenu (2026-09-09) sur le Form 3 : **condition sur le bouton d'envoi** (Propriétés du formulaire → « Conditions d'affichage du bouton d'envoi » → *Visible si → CODE NACRE → N'est pas vide*) + mention « Obligatoire : … » dans la description de la question. Ne PAS passer le champ Fields lui-même en obligatoire (Configuration > Champs supplémentaires) : ça l'imposerait aussi sur le formulaire ticket côté technicien.
 
+### Lignes de commande NACRES (depuis 1.6.0)
+
+Besoin : un devis / achat groupé couvre **plusieurs codes NACRES** ; l'ancien modèle « un champ Fields = un code » ne suffisait pas. Une demande porte désormais N lignes **code (niveau 4) + désignation + montant HT**.
+
+- **Form 3** : question native **texte court** « Lignes NACRES » (obligatoire), libellé contenant `order_lines.field_label_hint` (`lignes nacre`). Pas « texte long » : GLPI 11 force TinyMCE/HTML sur ce type, sans option texte brut. `nacre-orderlines.js` masque le champ (visuellement, il reste focusable) et monte un tableau éditable (code via la modale de `nacre-search.js`, désignation, montant, total HT). Le champ reçoit le **format texte d'échange** `NA.01 | Pipettes | 120,00 € HT ; NB.12 | Gants | 45,50 € HT` — lisible tel quel dans la description du ticket, relu par `OrderLines::parse()`. Ligne incomplète ⇒ champ vidé ⇒ la question obligatoire bloque l'envoi (jamais de ligne perdue en silence). `|`/`;` neutralisés dans les désignations.
+- **Création des lignes** : ⚠️ au `item_add` **Ticket**, GLPI 11 n'a pas encore lié le ticket à ses réponses (`AnswersHandler::createDestinations()` ajoute le lien `Glpi\Form\Destination\AnswersSet_FormDestinationItem` juste **après** le ticket, dans la même transaction que `saveAnswers()`). `OrderLineSync` est donc branché sur `item_add` de **ce lien** : `forms_answerssets_id` → `AnswersSet::getAnswers()` → question dont le libellé contient l'indice. **Ne jamais lever** (une exception annulerait toute la soumission) : erreurs dans `nacresearch.log`. Idempotent (rien si le ticket a déjà des lignes).
+- **Stockage** : `glpi_plugin_nacresearch_orderlines` (`tickets_id`, `sort_order`, `code`, `designation`, `amount_ht` DECIMAL NULL, `source` = `form`/`manual`/`legacy`, dates). Purge du ticket ⇒ purge des lignes (hook `item_purge`). La description du ticket reste l'**instantané de la demande initiale** ; l'onglet porte la ventilation validée.
+- **Onglet « Lignes NACRES »** (`OrderLineTab`, `addtabon` Ticket) : visible si le ticket a des lignes ou si l'utilisateur a `RIGHT_LINES`. Édition (même éditeur JS, montant facultatif, textarea brut sans JS) → `front/orderlines.form.php` : tout ou rien (une ligne illisible ⇒ rien n'est enregistré), trace `Log::HISTORY_LOG_SIMPLE_MESSAGE` dans l'historique du ticket.
+- **Montant** : obligatoire à la saisie du formulaire (JS), `NULL` autorisé en base pour les lignes reprises (« à compléter »).
+- **Cumuls par code/année** : pas d'UI (décision 2026-10-08), la table suffit le moment venu — à filtrer sur les tickets non refusés/annulés ; l'outil comptable reste la référence.
+- **Reprise de l'ancien champ** : `bin/migrate_legacy_nacre_codes.php [--dry-run] [--field=NOM]` détecte le champ Fields par libellé `nacre`, retrouve sa table de valeurs via `information_schema`, crée une ligne par code `XX.NN` trouvé (désignation « Reprise ancien champ Code NACRE », montant vide), ignore les tickets déjà pourvus, liste les valeurs non reconnues. **À lancer avant de supprimer le champ Fields.**
+
 ### Observateurs depuis un formulaire de catalogue (`inc/ObserverSync.php`)
 
 Sous-système **serveur** distinct du widget JS. Objectif : permettre au formulaire « Demande d'achat » (`Form/Render/3`) de désigner des observateurs qui seront ajoutés au ticket, y compris des personnes du labo **sans compte GLPI** (jamais connectées via CAS).
@@ -130,7 +149,7 @@ Problème résolu : une personne du labo qui ne s'est **jamais connectée via CA
 
 ## Droits et sécurité
 
-- Droits plugin : `plugin_nacresearch_data` (`Profile::RIGHT_NACRE`, READ/UPDATE — import/backup/restore) et `plugin_nacresearch_guide` (`Profile::RIGHT_GUIDE`, READ seul — accès au guide). **Une seule clé par droit** : l'ancienne `plugin_nacresearch_data_management` (supprimée en 1.3.0, jamais lue au runtime) n'existe plus.
+- Droits plugin : `plugin_nacresearch_data` (`Profile::RIGHT_NACRE`, READ/UPDATE — import/backup/restore), `plugin_nacresearch_guide` (`Profile::RIGHT_GUIDE`, READ seul — accès au guide) et `plugin_nacresearch_lines` (`Profile::RIGHT_LINES`, UPDATE — modification des lignes NACRES d'un ticket ; accordé à l'install aux deux profils financiers, comme le guide). Les droits sont chargés en session à la connexion : reconnexion nécessaire après l'install. **Une seule clé par droit** : l'ancienne `plugin_nacresearch_data_management` (supprimée en 1.3.0, jamais lue au runtime) n'existe plus.
 - **Ces droits n'ont AUCUN onglet dans l'UI Profil** (Administration > Profils). `inc/Profile.php` ne contient plus que les deux constantes ; le scaffolding d'onglet (`getTabNameForItem`/`displayTabContentForItem`/`getAllRights`) et le faux hook `$PLUGIN_HOOKS['rights_information']` (qui n'existe pas dans GLPI — 0 occurrence dans le cœur) ont été retirés en 1.3.0. Attribution :
   - à l'installation : `plugin_nacresearch_register_rights()` (setup.php) — **insertion gardée** clé par clé (`getProfileRights` puis `updateProfileRights` sur les seules clés manquantes ; **pas** `ProfileRight::addProfileRights()`, qui fait un INSERT sec et casse sur une clé déjà présente), puis `RIGHT_GUIDE` READ pour « Gestionnaire financier » et « Administratrice financière » ;
   - `RIGHT_NACRE` UPDATE pour l'administratrice : `bin/bootstrap_lps_ticket_workflow.php` ;
@@ -204,6 +223,8 @@ Le plugin a traversé une phase de simplification : une approche par contrôleur
 **1.4.0** : hiérarchie des codes NACRES (voir « Hiérarchie des codes NACRES » ci-dessus). `nacre.json` gagne `level`/`selectable` par entrée ; seuls les codes à 2 chiffres (`NA.01`) sont sélectionnables dans la modale, les catégories (`N`, `NA`, `NA.0`) s'affichent colorées et non cliquables (fond par niveau + liséré par famille) ; les lignes « NE PLUS UTILISER » sont filtrées à l'import. À déployer avec un reprocessing de `nacre.json` (réimport Excel ou `bin/update_nacre_data.php`).
 
 **1.3.2** : correctif CSRF. « Outils > Gestion des données NACRES » → clic sur *Importer* / *Sauvegarder* / *Restaurer* renvoyait « L'action que vous avez réalisée n'est pas autorisée. » (constaté en prod par le Super-Admin le 2026-09-10). Cause : `front/nacredata.form.php` appelait `Session::checkCSRF($_POST)` alors que le noyau GLPI 11 l'a déjà fait et a consommé le jeton (usage unique). Fix : suppression de cet appel + alignement du contrôle de droit sur `front/config.php` (`RIGHT_NACRE` UPDATE ou `config` UPDATE, au lieu d'un test sur le nom de profil « Administratrice financière »). Voir « Droits et sécurité » → note CSRF.
+
+**1.6.0** : lignes de commande NACRES (voir « Lignes de commande NACRES » ci-dessus) — plusieurs codes par demande, montant HT par ligne, onglet ticket modifiable par les gestionnaires, reprise de l'ancien champ Fields. Déploiement : MAJ plugin → `migrate_legacy_nacre_codes.php --dry-run` puis réel → Form 3 : ajouter la question texte court obligatoire « Lignes NACRES », retirer la question « CODE NACRE » et la condition du bouton d'envoi → supprimer le champ Fields. Les bandeaux du piège ci-dessus sur le champ Fields « Code NACRE » deviennent caducs une fois ce champ supprimé.
 
 `docs/guide-equipe-financiere.html` : guide d'utilisation de l'instance de prod pour les profils financiers (accès, formulaire, cycle de vie des tickets, **règle d'archivage des pièces jointes**). Pas de tableau des droits par profil — retiré à la demande du labo (jugé « mal pris »). Fichier fragment (pas de `<!doctype>`/`<head>`) : le `<title>` en tête + `<style>` inline, rendu autonome par un wrapper minimal. **Seul canal de diffusion : GLPI** (`front/guide.php?raw=1`). Décision 2026-09-10 : plus d'export PDF (`docs/guide-equipe-financiere.pdf` supprimé du dépôt), plus d'artifact claude.ai (l'ancien est à supprimer / supprimé dans la galerie claude.ai — non recréé). Le `@media print` du HTML reste pour un Ctrl+P ponctuel.
 

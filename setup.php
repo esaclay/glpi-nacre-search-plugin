@@ -13,8 +13,11 @@ require_once __DIR__ . '/hook.php';
 require_once __DIR__ . '/inc/Profile.php';
 require_once __DIR__ . '/inc/Menu.php';
 require_once __DIR__ . '/inc/GuideMenu.php';
+require_once __DIR__ . '/inc/OrderLines.php';
+require_once __DIR__ . '/inc/OrderLineSync.php';
+require_once __DIR__ . '/inc/OrderLineTab.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.5.0');
+define('PLUGIN_NACRESEARCH_VERSION', '1.6.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
 
@@ -24,22 +27,34 @@ function plugin_init_nacresearch(): void
 
     $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
 
+    // nacre-search.js d'abord : il expose window.NacreSearch (modale de
+    // recherche) utilisé par l'éditeur de lignes nacre-orderlines.js.
     $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['nacresearch'] = [
         'public/js/nacre-search.js',
+        'public/js/nacre-orderlines.js',
         'public/js/observer-search.js',
     ];
     $PLUGIN_HOOKS[Hooks::ADD_CSS]['nacresearch'] = [
         'public/css/nacre-search.css',
+        'public/css/nacre-orderlines.css',
         'public/css/observer-search.css',
     ];
     $PLUGIN_HOOKS[Hooks::ADD_HEADER_TAG]['nacresearch'] = plugin_nacresearch_header_tags();
 
-    // À la création d'un ticket (via formulaire de catalogue notamment), résout
-    // vers un compte GLPI — importé du LDAP si nécessaire — les observateurs
-    // saisis en adresse e-mail. Voir GlpiPlugin\Nacresearch\ObserverSync.
     $PLUGIN_HOOKS[Hooks::ITEM_ADD]['nacresearch'] = [
+        // À la création d'un ticket (via formulaire de catalogue notamment),
+        // résout vers un compte GLPI — importé du LDAP si nécessaire — les
+        // observateurs saisis en adresse e-mail. Voir ObserverSync.
         'Ticket' => 'plugin_nacresearch_ticket_add',
+        // Lien réponses du formulaire ↔ ticket créé : seul moment où les
+        // réponses sont accessibles depuis le ticket. Voir OrderLineSync.
+        \Glpi\Form\Destination\AnswersSet_FormDestinationItem::class => 'plugin_nacresearch_answers_link_add',
     ];
+    $PLUGIN_HOOKS[Hooks::ITEM_PURGE]['nacresearch'] = [
+        'Ticket' => 'plugin_nacresearch_ticket_purge',
+    ];
+
+    Plugin::registerClass(\GlpiPlugin\Nacresearch\OrderLineTab::class, ['addtabon' => ['Ticket']]);
 
     if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';
@@ -86,8 +101,8 @@ function plugin_nacresearch_check_config(bool $verbose = false): bool
 
 /**
  * Enregistre les droits du plugin sur tous les profils (valeur 0 par défaut),
- * puis accorde le droit « Guide équipe financière » en lecture aux profils
- * financiers. Idempotent : peut être rejoué à chaque mise à jour du plugin.
+ * puis accorde aux profils financiers le guide en lecture et la modification
+ * des lignes NACRES des tickets. Idempotent : rejoué à chaque mise à jour.
  *
  * Le droit d'import (RIGHT_NACRE) reste désactivé par défaut ; il est accordé
  * explicitement à l'administratrice par bin/bootstrap_lps_ticket_workflow.php
@@ -98,6 +113,7 @@ function plugin_nacresearch_register_rights(): void
     $pluginRights = [
         NacresearchProfile::RIGHT_NACRE,
         NacresearchProfile::RIGHT_GUIDE,
+        NacresearchProfile::RIGHT_LINES,
     ];
 
     // Insertion gardée : n'ajoute la clé qu'aux profils qui ne l'ont pas encore.
@@ -118,11 +134,12 @@ function plugin_nacresearch_register_rights(): void
         }
     }
 
-    // Accès au guide en lecture pour les deux profils financiers.
+    // Guide en lecture + modification des lignes NACRES pour les deux profils financiers.
     foreach (['Gestionnaire financier', 'Administratrice financière'] as $name) {
         foreach (array_keys($profile->find(['name' => $name])) as $profileId) {
             \ProfileRight::updateProfileRights((int) $profileId, [
                 NacresearchProfile::RIGHT_GUIDE => READ,
+                NacresearchProfile::RIGHT_LINES => READ | UPDATE,
             ]);
         }
     }
@@ -148,6 +165,10 @@ function plugin_nacresearch_install(): bool
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
             $migration->addPostQuery($query);
+        }
+
+        if (!$DB->tableExists(\GlpiPlugin\Nacresearch\OrderLines::TABLE)) {
+            $migration->addPostQuery(\GlpiPlugin\Nacresearch\OrderLines::createTableSql());
         }
 
         $migration->executeMigration();
@@ -207,12 +228,15 @@ function plugin_nacresearch_install(): bool
 function plugin_nacresearch_uninstall(): bool
 {
     global $DB;
-    if ($DB->tableExists('glpi_plugin_nacresearch_profiles')) {
-        $DB->query("DROP TABLE `glpi_plugin_nacresearch_profiles`;");
+    foreach (['glpi_plugin_nacresearch_profiles', \GlpiPlugin\Nacresearch\OrderLines::TABLE] as $table) {
+        if ($DB->tableExists($table)) {
+            $DB->doQuery("DROP TABLE `{$table}`;");
+        }
     }
     \ProfileRight::deleteProfileRights([
         NacresearchProfile::RIGHT_NACRE,
         NacresearchProfile::RIGHT_GUIDE,
+        NacresearchProfile::RIGHT_LINES,
     ]);
     return true;
 }

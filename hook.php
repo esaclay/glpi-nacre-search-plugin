@@ -7,6 +7,8 @@ require_once __DIR__ . '/inc/ObserverSync.php';
 
 use GlpiPlugin\Nacresearch\NacreData;
 use GlpiPlugin\Nacresearch\ObserverSync;
+use GlpiPlugin\Nacresearch\OrderLines;
+use GlpiPlugin\Nacresearch\OrderLineSync;
 use GlpiPlugin\Nacresearch\Profile;
 
 function plugin_nacresearch_runtime_ready(): bool
@@ -45,6 +47,23 @@ function plugin_nacresearch_configuration_ready(bool $verbose = false): bool
 function plugin_nacresearch_ticket_add(\Ticket $ticket): void
 {
     ObserverSync::syncFromTicket($ticket);
+}
+
+/**
+ * Hook item_add sur le lien réponses de formulaire ↔ élément créé : crée les
+ * lignes NACRES du ticket depuis la question « Lignes NACRES ».
+ */
+function plugin_nacresearch_answers_link_add(\Glpi\Form\Destination\AnswersSet_FormDestinationItem $link): void
+{
+    OrderLineSync::syncFromLink($link);
+}
+
+/**
+ * Hook item_purge sur Ticket : supprime les lignes NACRES du ticket purgé.
+ */
+function plugin_nacresearch_ticket_purge(\Ticket $ticket): void
+{
+    OrderLines::deleteForTicket((int) $ticket->getID());
 }
 
 function plugin_nacresearch_can_manage_data(): bool
@@ -97,6 +116,15 @@ function plugin_nacresearch_header_tags(): array
             'properties' => [
                 'name'    => 'nacresearch:modal-title',
                 'content' => (string) ($config['ui']['modal_title'] ?? 'Recherche de code NACRE'),
+            ],
+        ],
+        [
+            'tag'        => 'meta',
+            'properties' => [
+                'name'    => 'nacresearch:orderlines-hint',
+                'content' => ($config['order_lines']['enabled'] ?? true) === false
+                    ? ''
+                    : (string) ($config['order_lines']['field_label_hint'] ?? 'lignes nacre'),
             ],
         ],
         [

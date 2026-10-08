@@ -1,0 +1,76 @@
+/* Champ d'origine masqué mais toujours présent (valeur envoyée, validation). */
+.nacresearch-lines__source {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    opacity: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    pointer-events: none;
+}
+
+.nacresearch-lines {
+    width: 100%;
+}
+
+.nacresearch-lines__table {
+    margin-bottom: 0.5rem;
+}
+
+.nacresearch-lines__table th,
+.nacresearch-lines__table td {
+    vertical-align: middle;
+}
+
+.nacresearch-lines__table th:nth-child(1) {
+    width: 30%;
+}
+
+.nacresearch-lines__table th:nth-child(3) {
+    width: 9rem;
+}
+
+.nacresearch-lines__table th:nth-child(4) {
+    width: 2.5rem;
+}
+
+.nacresearch-lines__code .btn {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.nacresearch-lines__label {
+    margin-top: 0.15rem;
+    color: #4b5563;
+    font-size: 0.78rem;
+    line-height: 1.2;
+}
+
+.nacresearch-lines__remove {
+    font-size: 1.1rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.nacresearch-lines__row--invalid td {
+    background: #fef2f2;
+}
+
+.nacresearch-lines__errors {
+    margin-top: 0.5rem;
+    color: #b91c1c;
+    font-size: 0.85rem;
+}
+
+/* Petits écrans : le tableau défile plutôt que d'écraser les colonnes. */
+@media (max-width: 640px) {
+    .nacresearch-lines {
+        overflow-x: auto;
+    }
+
+    .nacresearch-lines__table {
+        min-width: 36rem;
+    }
+}
