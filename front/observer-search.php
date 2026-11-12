@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
 require_once dirname(__DIR__) . '/inc/LdapObserverSearch.php';
 

@@ -23,8 +23,8 @@
         <tag>research</tag>
     </tags>
     <requirements>
-        <requirement type="glpi_version" version="11.0.0" operator="ge" />
-        <requirement type="glpi_version" version="11.0.99" operator="le" />
+        <requirement type="glpi_version" version="12.0.0" operator="ge" />
+        <requirement type="glpi_version" version="12.0.99" operator="le" />
         <requirement type="php_version" version="8.0.0" operator="ge" />
         <requirement type="php_extension" name="json" />
         <requirement type="php_extension" name="curl" />

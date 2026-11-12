@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
 require_once dirname(__DIR__) . '/inc/Profile.php';
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Nacresearch\NacreData;
 use GlpiPlugin\Nacresearch\Profile;
 
+/** @var array $CFG_GLPI */
+global $CFG_GLPI;
+
 // Require RIGHT_NACRE (data management) or config UPDATE (super admin)
 if (!Session::haveRight(Profile::RIGHT_NACRE, UPDATE) && !Session::haveRight('config', UPDATE)) {
-    Html::displayNotFoundError();
-    exit;
+    throw new AccessDeniedHttpException();
 }
 
 Html::header('Gestion des données NACRES', $_SERVER['PHP_SELF'], 'tools', 'GlpiPlugin\Nacresearch\Menu');
@@ -25,10 +27,10 @@ try {
 }
 
 $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-$formAction = Plugin::getWebDir('nacresearch') . '/front/nacredata.form.php';
+$formAction = $CFG_GLPI['root_doc'] . '/plugins/nacresearch/front/nacredata.form.php';
 
-// Génération unique d'un jeton CSRF valide pour toute la page
-$csrfToken = Session::getNewCSRFToken();
+// Pas de jeton CSRF : GLPI 12 valide les POST par en-têtes navigateur
+// (Sec-Fetch-Site / Origin) dans CheckCsrfListener.
 ?>
 <div class="center">
     <h2>Importer les données NACRES</h2>
@@ -36,7 +38,6 @@ $csrfToken = Session::getNewCSRFToken();
     
     <!-- Formulaire Import -->
     <form method="post" action="<?= $escape($formAction) ?>" enctype="multipart/form-data">
-       <input type="hidden" name="_glpi_csrf_token" value="<?= $escape($csrfToken) ?>">
        <input type="hidden" name="action" value="import">
        <input type="file" name="workbook" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
        <button class="btn btn-primary ms-2" type="submit">Importer le classeur</button>
@@ -45,7 +46,6 @@ $csrfToken = Session::getNewCSRFToken();
     <!-- Formulaire Sauvegarde -->
     <div class="mt-2">
     <form method="post" action="<?= $escape($formAction) ?>">
-       <input type="hidden" name="_glpi_csrf_token" value="<?= $escape($csrfToken) ?>">
        <input type="hidden" name="action" value="backup">
        <button class="btn btn-outline-secondary" type="submit">Sauvegarder les données actuelles</button>
     </form>
@@ -64,7 +64,6 @@ $csrfToken = Session::getNewCSRFToken();
                 <td><?= $escape($backup['size']) ?></td>
                 <td>
                    <form method="post" action="<?= $escape($formAction) ?>" onsubmit="return confirm('Restaurer cette sauvegarde et remplacer les données NACRES actuelles ?');">
-                      <input type="hidden" name="_glpi_csrf_token" value="<?= $escape($csrfToken) ?>">
                       <input type="hidden" name="action" value="restore">
                       <input type="hidden" name="backup" value="<?= $escape($backup['name']) ?>">
                       <button class="btn btn-outline-secondary" type="submit">Restaurer</button>

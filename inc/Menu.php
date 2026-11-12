@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GlpiPlugin\Nacresearch;
 
 use CommonGLPI;
-use Plugin;
 use Session;
 
 /**
@@ -42,7 +41,7 @@ class Menu extends CommonGLPI
 
         return [
             'title' => 'Gestion des données NACRES',
-            'page'  => Plugin::getWebDir('nacresearch', false) . '/front/config.php',
+            'page'  => '/plugins/nacresearch/front/config.php',
             'icon'  => self::getIcon(),
         ];
     }

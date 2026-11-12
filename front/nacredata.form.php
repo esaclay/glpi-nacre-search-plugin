@@ -2,23 +2,20 @@
 
 declare(strict_types=1);
 
-include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
 require_once dirname(__DIR__) . '/inc/Profile.php';
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Nacresearch\NacreData;
 use GlpiPlugin\Nacresearch\Profile;
 
 // Même contrôle que front/config.php : droit d'import NACRES ou config UPDATE.
 if (!Session::haveRight(Profile::RIGHT_NACRE, UPDATE) && !Session::haveRight('config', UPDATE)) {
-    Html::displayNotFoundError();
-    exit;
+    throw new AccessDeniedHttpException();
 }
 
-// Pas de Session::checkCSRF() ici : sur GLPI 11 le noyau (CheckCsrfListener) valide
-// déjà le jeton pour toute requête POST non-AJAX et le consomme (jeton à usage
-// unique). Un second appel échouerait toujours → « L'action que vous avez
-// réalisée n'est pas autorisée. » Le plugin déclare csrf_compliant = true.
+// CSRF : validé par le noyau GLPI 12 (CheckCsrfListener, en-têtes
+// Sec-Fetch-Site / Origin). Rien à faire ici.
 
 try {
     $action = (string) ($_POST['action'] ?? '');

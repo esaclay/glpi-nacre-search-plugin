@@ -18,14 +18,15 @@ require_once __DIR__ . '/inc/OrderLineSync.php';
 require_once __DIR__ . '/inc/OrderLineTab.php';
 
 define('PLUGIN_NACRESEARCH_VERSION', '1.6.0');
-define('PLUGIN_NACRESEARCH_MIN_GLPI', '11.0.0');
-define('PLUGIN_NACRESEARCH_MAX_GLPI', '11.0.99');
+define('PLUGIN_NACRESEARCH_MIN_GLPI', '12.0.0');
+define('PLUGIN_NACRESEARCH_MAX_GLPI', '12.0.99');
 
 function plugin_init_nacresearch(): void
 {
     global $PLUGIN_HOOKS;
 
-    $PLUGIN_HOOKS['csrf_compliant']['nacresearch'] = true;
+    // GLPI 12 : plus de hook csrf_compliant ni de jeton CSRF (validation par
+    // en-têtes Sec-Fetch-Site / Origin dans le noyau).
 
     // nacre-search.js d'abord : il expose window.NacreSearch (modale de
     // recherche) utilisé par l'éditeur de lignes nacre-orderlines.js.

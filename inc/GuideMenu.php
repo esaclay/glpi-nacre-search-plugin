@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GlpiPlugin\Nacresearch;
 
 use CommonGLPI;
-use Plugin;
 use Session;
 
 /**
@@ -42,7 +41,7 @@ class GuideMenu extends CommonGLPI
 
         return [
             'title' => self::getMenuName(),
-            'page'  => Plugin::getWebDir('nacresearch', false) . '/front/guide.php',
+            'page'  => '/plugins/nacresearch/front/guide.php',
             'icon'  => self::getIcon(),
         ];
     }

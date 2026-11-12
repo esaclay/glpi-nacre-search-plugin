@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/Profile.php';
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Nacresearch\Profile;
+
+/** @var array $CFG_GLPI */
+global $CFG_GLPI;
 
 // Réservé aux profils financiers (droit lecture « Guide équipe financière »)
 // ou aux super-administrateurs.
 if (!Session::haveRight(Profile::RIGHT_GUIDE, READ) && !Session::haveRight('config', UPDATE)) {
-    Html::displayNotFoundError();
-    exit;
+    throw new AccessDeniedHttpException();
 }
 
 $guidePath = dirname(__DIR__) . '/docs/guide-equipe-financiere.html';
@@ -47,7 +49,7 @@ if (isset($_GET['raw'])) {
 
 Html::header('Guide équipe financière', $_SERVER['PHP_SELF'], 'tools', 'GlpiPlugin\Nacresearch\GuideMenu');
 
-$frameSrc = Plugin::getWebDir('nacresearch') . '/front/guide.php?raw=1';
+$frameSrc = $CFG_GLPI['root_doc'] .'/plugins/nacresearch/front/guide.php?raw=1';
 $escape = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 ?>
 <iframe id="nacresearch-guide-frame"

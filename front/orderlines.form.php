@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-include '../../../inc/includes.php';
 require_once dirname(__DIR__) . '/inc/NacreData.php';
 require_once dirname(__DIR__) . '/inc/Profile.php';
 require_once dirname(__DIR__) . '/inc/OrderLines.php';
 
+use Glpi\Exception\Http\AccessDeniedHttpException;
 use GlpiPlugin\Nacresearch\OrderLines;
 
-// Pas de Session::checkCSRF() : le noyau GLPI 11 l'a déjà fait (voir
-// front/nacredata.form.php).
+// CSRF : validé par le noyau GLPI 12 (voir front/nacredata.form.php).
 
 $ticketId = (int) ($_POST['tickets_id'] ?? 0);
 $ticket = new Ticket();
@@ -21,8 +20,7 @@ if (
     || !$ticket->getFromDB($ticketId)
     || !$ticket->can($ticketId, READ)
 ) {
-    Html::displayNotFoundError();
-    exit;
+    throw new AccessDeniedHttpException();
 }
 
 $parsed = OrderLines::parse((string) ($_POST['lines'] ?? ''));
