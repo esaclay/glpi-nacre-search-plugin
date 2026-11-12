@@ -143,10 +143,12 @@ try {
             continue;
         }
 
-        preg_match_all('/[A-Z]{2}\s*\.\s*\d{2}(?!\d)/', strtoupper($value), $matches);
+        // Tolère les saisies libres « GA 04 », « NA24 » (point manquant) ;
+        // les catégories (« TA.0 », « SC ») restent non reprises.
+        preg_match_all('/(?<![A-Z])([A-Z]{2})\s*\.?\s*(\d{2})(?!\d)/', strtoupper($value), $matches, PREG_SET_ORDER);
         $codes = array_values(array_unique(array_map(
-            static fn (string $code): string => (string) preg_replace('/\s+/', '', $code),
-            $matches[0]
+            static fn (array $match): string => $match[1] . '.' . $match[2],
+            $matches
         )));
         if ($codes === []) {
             $unrecognized[] = sprintf('ticket %d : « %s »', $ticketId, $value);
