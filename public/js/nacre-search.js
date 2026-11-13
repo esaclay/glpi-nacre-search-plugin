@@ -7,7 +7,7 @@
         // Élément qui reprend le focus à la fermeture, et action au choix d'un code.
         returnFocus: null,
         onSelect: null,
-        orderLinesHint: 'lignes nacre',
+        orderLinesHint: 'codes nacre',
         triggerClass: 'nacresearch-trigger',
         modal: null,
         refs: null,

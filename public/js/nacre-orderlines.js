@@ -35,7 +35,7 @@
     function readHint() {
         // Meta présente mais vide = éditeur désactivé.
         var tag = document.querySelector('meta[name="nacresearch:orderlines-hint"]');
-        return tag ? tag.content : 'lignes nacre';
+        return tag ? tag.content : 'codes nacre';
     }
 
     // Miroir de OrderLines::parseAmount() : null si vide, NaN si illisible ou ≤ 0.

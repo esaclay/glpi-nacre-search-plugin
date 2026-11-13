@@ -21,7 +21,7 @@ return [
     // soumission, les lignes sont enregistrées sur le ticket (OrderLineSync).
     'order_lines' => [
         'enabled' => true,
-        'field_label_hint' => 'lignes nacre',
+        'field_label_hint' => 'codes nacre',
     ],
     // Synchronisation des observateurs saisis dans un formulaire de catalogue :
     // à la création du ticket, chaque observateur « acteur e-mail » dont

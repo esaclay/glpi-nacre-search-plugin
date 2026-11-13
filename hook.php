@@ -124,7 +124,7 @@ function plugin_nacresearch_header_tags(): array
                 'name'    => 'nacresearch:orderlines-hint',
                 'content' => ($config['order_lines']['enabled'] ?? true) === false
                     ? ''
-                    : (string) ($config['order_lines']['field_label_hint'] ?? 'lignes nacre'),
+                    : (string) ($config['order_lines']['field_label_hint'] ?? 'codes nacre'),
             ],
         ],
         [

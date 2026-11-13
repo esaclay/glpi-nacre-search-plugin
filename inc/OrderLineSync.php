@@ -49,7 +49,7 @@ final class OrderLineSync
                 return;
             }
 
-            $hint = self::normalize((string) ($config['field_label_hint'] ?? 'lignes nacre'));
+            $hint = self::normalize((string) ($config['field_label_hint'] ?? 'codes nacre'));
             $lines = [];
             $rejected = [];
             foreach ($answersSet->getAnswers() as $answer) {
