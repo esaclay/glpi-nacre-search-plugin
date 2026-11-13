@@ -17,7 +17,7 @@ require_once __DIR__ . '/inc/OrderLines.php';
 require_once __DIR__ . '/inc/OrderLineSync.php';
 require_once __DIR__ . '/inc/OrderLineTab.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.6.0');
+define('PLUGIN_NACRESEARCH_VERSION', '1.6.1');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '12.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '12.0.99');
 

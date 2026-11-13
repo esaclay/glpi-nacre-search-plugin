@@ -1,18 +1,27 @@
 (function () {
     'use strict';
 
-    // Éditeur de lignes de commande NACRES (code + désignation + montant HT).
+    // Éditeur de lignes NACRES : UNE LIGNE PAR CODE NACRE (et non par article).
+    // Le demandeur regroupe lui-même les articles du devis joint : chaque ligne
+    // porte un code + une courte mention des articles concernés (« lignes 1 à 7
+    // du devis », « gants et pipettes »). Le détail et les montants restent sur
+    // le devis.
     //
     // Se monte sur :
     //  - la question texte court « Lignes NACRES » du catalogue de formulaires
-    //    (libellé contenant l'indice `nacresearch:orderlines-hint`) — montant et
-    //    désignation obligatoires ;
+    //    (libellé contenant l'indice `nacresearch:orderlines-hint`) — sans
+    //    colonne montant ;
     //  - le textarea `[data-nacresearch-orderlines-target]` de l'onglet ticket
-    //    « Lignes NACRES » — montant facultatif (lignes reprises sans montant).
+    //    « Lignes NACRES » — avec une colonne montant HT facultative, à l'usage
+    //    des gestionnaires.
+    //
+    // Règles : code obligatoire sur chaque ligne ; mention des articles
+    // obligatoire dès qu'il y a plusieurs lignes (sinon le gestionnaire ne sait
+    // pas répartir le devis) ; montant toujours facultatif.
     //
     // Le champ d'origine est masqué et reçoit le format texte d'échange relu par
     // le serveur (OrderLines::parse()) :
-    //     NA.01 | Pipettes | 120,00 € HT ; NB.12 | Gants | 45,50 € HT
+    //     NB.03 | lignes 1 à 7 ; NA.12 | ordinateur portable
     // Tant qu'une ligne est incomplète, le champ est vidé : la question
     // obligatoire bloque alors l'envoi, aucune ligne n'est perdue en silence.
 
@@ -67,10 +76,16 @@
             });
     }
 
+    // Miroir de OrderLines::format() : « CODE », « CODE | articles »,
+    // « CODE | articles | 120,00 € HT ».
     function serialize(rows) {
         return rows.map(function (row) {
-            var chunk = row.code + ' | ' + cleanDesignation(row.designation);
+            var designation = cleanDesignation(row.designation);
             var amount = parseAmount(row.amount);
+            var chunk = row.code;
+            if (designation !== '' || amount !== null) {
+                chunk += ' | ' + designation;
+            }
             if (amount !== null) {
                 chunk += ' | ' + amount.toFixed(2).replace('.', ',') + ' € HT';
             }
@@ -82,20 +97,16 @@
         return !row.code && !trim(row.designation) && !trim(row.amount);
     }
 
-    function validate(row, strict) {
+    function validate(row, multiple) {
         var errors = [];
         if (!/^[A-Z]{2}\.\d{2}$/.test(row.code)) {
             errors.push('code NACRE à choisir');
         }
-        if (strict && !trim(row.designation)) {
-            errors.push('désignation manquante');
+        if (multiple && !trim(row.designation)) {
+            errors.push('précisez les articles concernés (plusieurs codes)');
         }
         var amount = parseAmount(row.amount);
-        if (amount === null) {
-            if (strict) {
-                errors.push('montant HT manquant');
-            }
-        } else if (isNaN(amount)) {
+        if (amount !== null && isNaN(amount)) {
             errors.push('montant HT illisible (ex. 120,50)');
         }
         return errors;
@@ -112,7 +123,8 @@
         return node;
     }
 
-    function mount(field, strict) {
+    // showAmount : true sur l'onglet ticket (gestionnaires), false sur le formulaire.
+    function mount(field, showAmount) {
         var api = window.NacreSearch;
         if (!api || field.dataset.nacresearchOrderlines === '1') {
             return;
@@ -124,36 +136,48 @@
         var rows = parseText(field.value);
         var showErrors = false;
 
-        var root = el('div', 'nacresearch-lines');
+        var root = el('div', 'nacresearch-lines' + (showAmount ? '' : ' nacresearch-lines--no-amount'));
         var table = el('table', 'table table-sm nacresearch-lines__table');
         var thead = el('thead');
         var headRow = el('tr');
-        ['Code NACRE', 'Désignation', 'Montant HT (€)', ''].forEach(function (title, index) {
-            var th = el('th', index === 2 ? 'text-end' : '', title);
-            headRow.appendChild(th);
+        var titles = showAmount
+            ? ['Code NACRE', 'Articles concernés', 'Montant HT (€)', '']
+            : ['Code NACRE', 'Articles concernés', ''];
+        titles.forEach(function (title, index) {
+            headRow.appendChild(el('th', showAmount && index === 2 ? 'text-end' : '', title));
         });
         thead.appendChild(headRow);
         var tbody = el('tbody');
-        var tfoot = el('tfoot');
-        var footRow = el('tr');
-        var totalLabel = el('th', '', 'Total HT');
-        totalLabel.colSpan = 2;
-        var totalCell = el('th', 'text-end text-nowrap');
-        footRow.appendChild(totalLabel);
-        footRow.appendChild(totalCell);
-        footRow.appendChild(el('th'));
-        tfoot.appendChild(footRow);
         table.appendChild(thead);
         table.appendChild(tbody);
-        table.appendChild(tfoot);
 
-        var addButton = el('button', 'btn btn-sm btn-outline-primary', '+ Ajouter une ligne');
+        var totalCell = null;
+        if (showAmount) {
+            var tfoot = el('tfoot');
+            var footRow = el('tr');
+            var totalLabel = el('th', '', 'Total HT renseigné');
+            totalLabel.colSpan = 2;
+            totalCell = el('th', 'text-end text-nowrap');
+            footRow.appendChild(totalLabel);
+            footRow.appendChild(totalCell);
+            footRow.appendChild(el('th'));
+            tfoot.appendChild(footRow);
+            table.appendChild(tfoot);
+        }
+
+        var addButton = el('button', 'btn btn-sm btn-outline-primary', '+ Ajouter un autre code NACRE');
         addButton.type = 'button';
+        var hintBox = el('div', 'nacresearch-lines__hint',
+            'Un seul code suffit dans la plupart des cas. Si le devis relève de plusieurs codes, '
+            + 'ajoutez une ligne par code et indiquez les articles concernés.');
         var errorBox = el('div', 'nacresearch-lines__errors');
         errorBox.hidden = true;
 
         root.appendChild(table);
         root.appendChild(addButton);
+        if (!showAmount) {
+            root.appendChild(hintBox);
+        }
         root.appendChild(errorBox);
 
         field.classList.add('nacresearch-lines__source');
@@ -189,31 +213,36 @@
             });
             codeCell.appendChild(row.codeButton);
             codeCell.appendChild(row.labelEl);
+            tr.appendChild(codeCell);
 
             var designationCell = el('td');
             var designation = el('input', 'form-control form-control-sm');
             designation.type = 'text';
-            designation.placeholder = 'Article du devis';
+            designation.placeholder = 'Ex. lignes 1 à 7 du devis, gants et pipettes…';
             designation.value = row.designation;
-            designation.setAttribute('aria-label', 'Désignation');
+            designation.setAttribute('aria-label', 'Articles concernés');
             designation.addEventListener('input', function () {
                 row.designation = designation.value;
                 sync();
             });
             designationCell.appendChild(designation);
+            tr.appendChild(designationCell);
 
-            var amountCell = el('td');
-            var amount = el('input', 'form-control form-control-sm text-end nacresearch-lines__amount');
-            amount.type = 'text';
-            amount.inputMode = 'decimal';
-            amount.placeholder = strict ? '0,00' : 'à compléter';
-            amount.value = row.amount;
-            amount.setAttribute('aria-label', 'Montant HT en euros');
-            amount.addEventListener('input', function () {
-                row.amount = amount.value;
-                sync();
-            });
-            amountCell.appendChild(amount);
+            if (showAmount) {
+                var amountCell = el('td');
+                var amount = el('input', 'form-control form-control-sm text-end nacresearch-lines__amount');
+                amount.type = 'text';
+                amount.inputMode = 'decimal';
+                amount.placeholder = 'facultatif';
+                amount.value = row.amount;
+                amount.setAttribute('aria-label', 'Montant HT en euros (facultatif)');
+                amount.addEventListener('input', function () {
+                    row.amount = amount.value;
+                    sync();
+                });
+                amountCell.appendChild(amount);
+                tr.appendChild(amountCell);
+            }
 
             var removeCell = el('td', 'text-end');
             var remove = el('button', 'btn btn-sm btn-link text-danger nacresearch-lines__remove', '×');
@@ -229,11 +258,8 @@
                 sync();
             });
             removeCell.appendChild(remove);
-
-            tr.appendChild(codeCell);
-            tr.appendChild(designationCell);
-            tr.appendChild(amountCell);
             tr.appendChild(removeCell);
+
             row.tr = tr;
             return tr;
         }
@@ -249,12 +275,16 @@
             var errors = [];
             var complete = [];
             var total = 0;
+            var filled = rows.filter(function (row) {
+                return !isBlank(row);
+            });
+            var multiple = filled.length > 1;
             rows.forEach(function (row, index) {
                 if (isBlank(row)) {
                     row.tr.classList.remove('nacresearch-lines__row--invalid');
                     return;
                 }
-                var rowErrors = validate(row, strict);
+                var rowErrors = validate(row, multiple);
                 row.tr.classList.toggle('nacresearch-lines__row--invalid', showErrors && rowErrors.length > 0);
                 if (rowErrors.length) {
                     errors.push('Ligne ' + (index + 1) + ' : ' + rowErrors.join(', ') + '.');
@@ -271,7 +301,9 @@
 
         function sync() {
             var state = collect();
-            totalCell.textContent = money.format(state.total);
+            if (totalCell) {
+                totalCell.textContent = money.format(state.total);
+            }
 
             errorBox.hidden = !(showErrors && state.errors.length);
             errorBox.textContent = '';
@@ -327,7 +359,7 @@
                 showErrors = true;
                 var state = sync();
                 // Onglet ticket : un champ vidé effacerait toutes les lignes.
-                if (!strict && state.errors.length) {
+                if (showAmount && state.errors.length) {
                     event.preventDefault();
                     event.stopPropagation();
                     errorBox.scrollIntoView({ block: 'center' });
@@ -360,7 +392,7 @@
             return;
         }
         if (node.matches('[data-nacresearch-orderlines-target]')) {
-            mount(node, node.dataset.nacresearchOrderlinesAmountRequired !== '0');
+            mount(node, node.dataset.nacresearchOrderlinesShowAmount === '1');
             return;
         }
         if (
@@ -369,7 +401,7 @@
             && window.NacreSearch
             && window.NacreSearch.isCatalogQuestionField(node, hint)
         ) {
-            mount(node, true);
+            mount(node, false);
         }
     }
 

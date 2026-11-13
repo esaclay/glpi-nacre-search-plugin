@@ -68,23 +68,31 @@ final class OrderLineTab extends CommonGLPI
         if ($lines === []) {
             echo '<p class="text-muted">Aucune ligne NACRES sur ce ticket.</p>';
         } else {
+            // Montant facultatif : colonne affichée seulement si un gestionnaire
+            // en a renseigné au moins un.
+            $hasAmount = array_filter($lines, static fn (array $line): bool => $line['amount_ht'] !== null) !== [];
+
             echo '<table class="table table-sm table-hover nacresearch-tab__table">';
-            echo '<thead><tr><th>Code</th><th>Libellé NACRE</th><th>Désignation</th>'
-                . '<th class="text-end">Montant HT</th></tr></thead><tbody>';
+            echo '<thead><tr><th>Code</th><th>Libellé NACRE</th><th>Articles concernés</th>'
+                . ($hasAmount ? '<th class="text-end">Montant HT</th>' : '')
+                . '</tr></thead><tbody>';
             foreach ($lines as $line) {
-                $amount = $line['amount_ht'] === null
-                    ? '<span class="badge bg-warning text-dark">à compléter</span>'
-                    : $e(OrderLines::formatMoney($line['amount_ht']));
                 echo '<tr>'
                     . '<td class="fw-bold text-nowrap">' . $e($line['code']) . '</td>'
                     . '<td>' . $e(OrderLines::labelFor($line['code'])) . '</td>'
                     . '<td>' . $e($line['designation']) . '</td>'
-                    . '<td class="text-end text-nowrap">' . $amount . '</td>'
+                    . ($hasAmount
+                        ? '<td class="text-end text-nowrap">' . $e(OrderLines::formatMoney($line['amount_ht'])) . '</td>'
+                        : '')
                     . '</tr>';
             }
-            echo '</tbody><tfoot><tr><th colspan="3">Total HT</th>'
-                . '<th class="text-end text-nowrap">' . $e(OrderLines::formatMoney(OrderLines::total($lines))) . '</th>'
-                . '</tr></tfoot></table>';
+            echo '</tbody>';
+            if ($hasAmount) {
+                echo '<tfoot><tr><th colspan="3">Total HT renseigné</th>'
+                    . '<th class="text-end text-nowrap">' . $e(OrderLines::formatMoney(OrderLines::total($lines))) . '</th>'
+                    . '</tr></tfoot>';
+            }
+            echo '</table>';
         }
 
         if ($canEdit) {
@@ -96,7 +104,7 @@ final class OrderLineTab extends CommonGLPI
             // Sans JS, le textarea reste éditable au format texte ; avec JS,
             // nacre-orderlines.js le masque et monte l'éditeur de lignes.
             echo '<textarea class="form-control" name="lines" rows="4"'
-                . ' data-nacresearch-orderlines-target data-nacresearch-orderlines-amount-required="0">'
+                . ' data-nacresearch-orderlines-target data-nacresearch-orderlines-show-amount="1">'
                 . $e(OrderLines::format($lines))
                 . '</textarea>';
             echo '<button type="submit" class="btn btn-primary btn-sm mt-2">Enregistrer les lignes</button>';

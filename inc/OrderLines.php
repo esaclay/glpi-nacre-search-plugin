@@ -9,14 +9,16 @@ use Log;
 use Session;
 
 /**
- * Lignes de commande NACRES rattachées à un ticket : une ligne = un code NACRE
- * (niveau 4) + une désignation + un montant HT (facultatif en base : les lignes
- * reprises de l'ancien champ Fields n'en ont pas).
+ * Lignes NACRES rattachées à un ticket : UNE LIGNE PAR CODE NACRE (niveau 4),
+ * avec une courte mention des articles du devis qu'elle couvre (colonne
+ * `designation`, obligatoire côté formulaire seulement s'il y a plusieurs
+ * codes) et un montant HT facultatif (jamais demandé au demandeur, le devis
+ * joint fait foi ; saisissable par les gestionnaires dans l'onglet ticket).
  *
  * Format texte d'échange, lisible tel quel dans la description du ticket et
  * relu côté serveur (question « Lignes NACRES » du formulaire, onglet ticket) :
  *
- *     NA.01 | Pipettes | 120,00 € HT ; NB.12 | Gants | 45,50 € HT
+ *     NB.03 | lignes 1 à 7 ; NA.12 | ordinateur portable | 950,00 € HT
  *
  * Le widget JS (nacre-orderlines.js) produit exactement ce format et neutralise
  * les séparateurs `|` et `;` dans les désignations.
@@ -148,8 +150,12 @@ final class OrderLines
         $chunks = [];
         foreach ($lines as $line) {
             $designation = trim((string) preg_replace('/\s*[|;\r\n]+\s*/u', ', ', (string) $line['designation']));
-            $chunk = $line['code'] . ' | ' . $designation;
-            if ($line['amount_ht'] !== null && $line['amount_ht'] !== '') {
+            $hasAmount = $line['amount_ht'] !== null && $line['amount_ht'] !== '';
+            $chunk = $line['code'];
+            if ($designation !== '' || $hasAmount) {
+                $chunk .= ' | ' . $designation;
+            }
+            if ($hasAmount) {
                 $chunk .= ' | ' . number_format((float) $line['amount_ht'], 2, ',', '') . ' € HT';
             }
             $chunks[] = $chunk;
@@ -278,15 +284,23 @@ final class OrderLines
     }
 
     /**
-     * @param list<array{amount_ht: ?string}> $lines
+     * Résumé pour l'historique : les codes, et le total s'il y a des montants.
+     *
+     * @param list<array{code: string, amount_ht: ?string}> $lines
      */
     public static function summary(array $lines): string
     {
-        return sprintf(
-            '%d ligne(s), total %s HT',
-            count($lines),
-            self::formatMoney(self::total($lines))
-        );
+        if ($lines === []) {
+            return 'aucune ligne';
+        }
+
+        $summary = implode(', ', array_column($lines, 'code'));
+        $hasAmount = array_filter($lines, static fn (array $line): bool => $line['amount_ht'] !== null) !== [];
+        if ($hasAmount) {
+            $summary .= sprintf(' (total %s HT)', self::formatMoney(self::total($lines)));
+        }
+
+        return $summary;
     }
 
     /**
