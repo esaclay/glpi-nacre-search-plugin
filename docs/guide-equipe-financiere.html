@@ -488,8 +488,8 @@
           <span class="fdesc"><span class="field">Fonctionnement</span> ou <span class="field">Équipement</span> (montant &gt; 3000&nbsp;€ <em>et</em> durée de vie &gt; 1&nbsp;an).</span>
         </li>
         <li>
-          <span><span class="fname">Code NACRE</span><br><span class="req">Obligatoire</span></span>
-          <span class="fdesc">Nomenclature des achats de la recherche. Le bouton <strong>« Chercher un code NACRE »</strong> ouvre une recherche par mot-clé (ex.&nbsp;: <span class="field">AC.01</span>). Le formulaire ne peut pas être envoyé tant que ce champ est vide.</span>
+          <span><span class="fname">Codes NACRES</span><br><span class="req">Obligatoire</span></span>
+          <span class="fdesc">Une ligne par code NACRE, choisi avec le bouton de recherche (code, libellé ou mot-clé). Un seul code suffit dans la plupart des cas. Si le devis relève de plusieurs codes, le demandeur ajoute une ligne par code et indique à côté les <strong>articles concernés</strong> (ex.&nbsp;: «&nbsp;lignes 1 à 4 du devis&nbsp;»). Aucun montant n'est demandé&nbsp;: le devis fait foi. Voir <a href="#nacre">section&nbsp;5</a>.</span>
         </li>
         <li>
           <span class="fname">Observateurs (adresses mail)</span>
@@ -570,11 +570,13 @@
 
     <section id="nacre">
       <h2><span class="s-num">05</span>Codes NACRE</h2>
-      <p class="lede">Chaque demande doit porter un code NACRE.</p>
+      <p class="lede">Chaque demande porte un ou plusieurs codes NACRE, choisis par le demandeur&nbsp;: l'équipe n'a pas à les rechercher, seulement à les vérifier.</p>
       <ul>
-        <li>Sur le formulaire, le bouton <strong>« Chercher un code NACRE »</strong> à côté du champ ouvre une recherche par code, libellé ou mot-clé.</li>
+        <li><strong>Sur le formulaire</strong>&nbsp;: une ligne par code, avec la mention des articles du devis concernés dès qu'il y a plusieurs codes. Seuls les codes commandables (ex.&nbsp;: <span class="field">NB.03</span>) peuvent être choisis, pas les catégories.</li>
+        <li><strong>Dans la description du ticket</strong> (et l'e-mail «&nbsp;Nouveau ticket&nbsp;»)&nbsp;: un code par ligne, avec son libellé et les articles concernés.</li>
+        <li><strong>Onglet <span class="field">Lignes NACRES</span> du ticket</strong>&nbsp;: la liste des codes retenus, que les profils financiers peuvent corriger (<em>Modifier les lignes</em>)&nbsp;: changer un code, préciser les articles, ajouter un montant HT si utile (facultatif). Chaque modification est tracée dans l'<em>Historique</em> du ticket. La description, elle, reste la demande d'origine.</li>
+        <li><strong>Anciens tickets</strong> (avant novembre 2026)&nbsp;: le code saisi a été repris dans l'onglet. Une vingtaine portaient une catégorie au lieu d'un code (ex.&nbsp;: <span class="field">TA.0</span>)&nbsp;; leur onglet est vide et peut être complété si besoin.</li>
         <li>La liste des codes est mise à jour par l'<strong>administratrice financière</strong> depuis <em>Outils&nbsp;› NACRES</em> (import d'un classeur Excel, sauvegarde et restauration des versions précédentes).</li>
-        <li>Le code choisi est enregistré sur le ticket dans le champ <span class="field">Code NACRE</span>.</li>
       </ul>
     </section>
 
