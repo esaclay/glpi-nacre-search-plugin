@@ -391,6 +391,17 @@
             mount(node, node.dataset.nacresearchOrderlinesShowAmount === '1');
             return;
         }
+        // Question de type « Codes NACRES » (1.7.0) : repérée par son attribut,
+        // uniquement dans le rendu du formulaire (l'éditeur d'administration
+        // porte le même attribut sur son champ « valeur par défaut »).
+        if (
+            node.matches('input[data-nacresearch-codes="1"]')
+            && node.name !== 'default_value'
+            && node.closest('[data-glpi-form-renderer-question]')
+        ) {
+            mount(node, false);
+            return;
+        }
         if (
             hint
             && node.matches('input[type="text"]')

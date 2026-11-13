@@ -53,7 +53,11 @@ final class OrderLineSync
             $lines = [];
             $rejected = [];
             foreach ($answersSet->getAnswers() as $answer) {
-                if ($hint === '' || !str_contains(self::normalize($answer->getQuestionLabel()), $hint)) {
+                // Question de type « Codes NACRES » (1.7.0), ou ancienne
+                // question texte court repérée par son titre.
+                $isCodesType = $answer->getRawType() === QuestionTypeNacreCodes::class;
+                $matchesHint = $hint !== '' && str_contains(self::normalize($answer->getQuestionLabel()), $hint);
+                if (!$isCodesType && !$matchesHint) {
                     continue;
                 }
                 $raw = $answer->getRawAnswer();

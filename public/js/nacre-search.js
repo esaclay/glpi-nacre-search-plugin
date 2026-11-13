@@ -152,8 +152,12 @@
     }
 
     function fieldMatches(field) {
-        // La question « Lignes NACRES » est prise en charge par l'éditeur de
-        // lignes (nacre-orderlines.js), pas par le bouton simple.
+        // Les questions « Codes NACRES » (type dédié, ou ancienne question texte
+        // repérée par son titre) sont prises en charge par l'éditeur de lignes
+        // (nacre-orderlines.js), pas par le bouton simple.
+        if (field.dataset.nacresearchCodes === '1') {
+            return false;
+        }
         if (state.orderLinesHint && isCatalogQuestionField(field, state.orderLinesHint)) {
             return false;
         }

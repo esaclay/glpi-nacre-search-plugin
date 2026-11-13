@@ -16,8 +16,9 @@ require_once __DIR__ . '/inc/GuideMenu.php';
 require_once __DIR__ . '/inc/OrderLines.php';
 require_once __DIR__ . '/inc/OrderLineSync.php';
 require_once __DIR__ . '/inc/OrderLineTab.php';
+require_once __DIR__ . '/inc/QuestionTypeNacreCodes.php';
 
-define('PLUGIN_NACRESEARCH_VERSION', '1.6.1');
+define('PLUGIN_NACRESEARCH_VERSION', '1.7.0');
 define('PLUGIN_NACRESEARCH_MIN_GLPI', '12.0.0');
 define('PLUGIN_NACRESEARCH_MAX_GLPI', '12.0.99');
 
@@ -56,6 +57,15 @@ function plugin_init_nacresearch(): void
     ];
 
     Plugin::registerClass(\GlpiPlugin\Nacresearch\OrderLineTab::class, ['addtabon' => ['Ticket']]);
+
+    // Type de question « Codes NACRES » proposé dans l'éditeur de formulaires
+    // (catégorie « Réponse courte »). Seulement plugin actif, comme le plugin
+    // Fields : sinon GLPI ignore simplement les questions de ce type.
+    if (Plugin::isPluginActive('nacresearch')) {
+        \Glpi\Form\QuestionType\QuestionTypesManager::getInstance()->registerPluginQuestionType(
+            new \GlpiPlugin\Nacresearch\QuestionTypeNacreCodes()
+        );
+    }
 
     if (plugin_nacresearch_can_manage_data()) {
         $PLUGIN_HOOKS[Hooks::CONFIG_PAGE]['nacresearch'] = 'front/config.php';
