@@ -40,13 +40,6 @@
 .nacresearch-lines--no-amount .nacresearch-lines__table th:nth-child(3) {
     width: 2.5rem;
 }
-
-.nacresearch-lines__hint {
-    margin-top: 0.4rem;
-    color: #4b5563;
-    font-size: 0.8rem;
-}
-
 .nacresearch-lines__code .btn {
     font-weight: 700;
     white-space: nowrap;

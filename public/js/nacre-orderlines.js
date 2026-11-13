@@ -167,17 +167,13 @@
 
         var addButton = el('button', 'btn btn-sm btn-outline-primary', '+ Ajouter un autre code NACRE');
         addButton.type = 'button';
-        var hintBox = el('div', 'nacresearch-lines__hint',
-            'Un seul code suffit dans la plupart des cas. Si le devis relève de plusieurs codes, '
-            + 'ajoutez une ligne par code et indiquez les articles concernés.');
+        // Pas de texte d'aide ici : l'explication est dans la description de la
+        // question du formulaire (modifiable sans redéployer le plugin).
         var errorBox = el('div', 'nacresearch-lines__errors');
         errorBox.hidden = true;
 
         root.appendChild(table);
         root.appendChild(addButton);
-        if (!showAmount) {
-            root.appendChild(hintBox);
-        }
         root.appendChild(errorBox);
 
         field.classList.add('nacresearch-lines__source');
