@@ -30,14 +30,15 @@ if (isset($_GET['raw'])) {
     }
 
     // Le guide est un document statique de confiance : CSP dédiée (et non celle,
-    // plus stricte, de GLPI) pour autoriser le <style> inline et les polices.
+    // plus stricte, de GLPI) pour autoriser le <style> inline, les polices et
+    // les captures d'écran intégrées au guide (images en data: URI).
     header('Content-Type: text/html; charset=UTF-8');
     header('X-Frame-Options: SAMEORIGIN');
     header_remove('Content-Security-Policy');
     header(
         "Content-Security-Policy: default-src 'none'; "
         . "style-src 'unsafe-inline' https://fonts.googleapis.com; "
-        . "font-src https://fonts.gstatic.com; frame-ancestors 'self'"
+        . "font-src https://fonts.gstatic.com; img-src data:; frame-ancestors 'self'"
     );
     echo "<!doctype html>\n<html lang=\"fr\">\n";
     echo "<meta charset=\"UTF-8\">\n";
